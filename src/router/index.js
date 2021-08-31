@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
 import ViewAdmin from '../views/admin/viewCreate.vue';
 import ViewDesign from '../views/admin/viewDesign.vue';
+import Example from '../views/Example.vue';
 
 const routes = [
   {
@@ -26,6 +27,11 @@ const routes = [
     path: '/viewD',
     name: 'ViewDesign',
     component: ViewDesign,
+  },
+  {
+    path: '/example',
+    name: 'Example',
+    component: Example,
   },
 ];
 

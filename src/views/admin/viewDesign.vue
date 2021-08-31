@@ -50,7 +50,7 @@
               Diseño
             </legend>
             <div class="px-4 py-6 sm:px-1">
-              <div class="border-4 border-dashed border-gray-200 rounded-lg h-96 overflow-scroll">
+              <div class="border-4 border-dashed border-gray-200 rounded-lg h-96 overflow-scroll resize-y">
                 <draggable class="dragArea list-group w-full" id="maindrag"
                   :list="data.formElement" group="elementDesign"
                   @change="log" :move="checkMove">
@@ -69,7 +69,7 @@
             </div>
             <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
               <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Save
+                Aceptar
               </button>
             </div>
           </fieldset>

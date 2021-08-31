@@ -1,0 +1,23 @@
+/*eslint linebreak-style: ["error", "windows"]*/
+{
+    "root": true,
+    "env": {
+        "es6": true,
+        "browser": true,
+        "commonjs": true,
+        "node": true
+    },
+    "ignorePatterns": ["/node_modules/*.*"],
+    "parserOptions": {
+        "parser": "babel-eslint",
+        "ecmaVersion": 8,
+        "sourceType": "module"
+    },
+    "rules": {
+        "max-len": 0
+    },
+    "extends": [
+        "plugin:vue/vue3-essential",
+        "eslint:recommended"
+    ]
+}
