@@ -3,6 +3,7 @@ import Home from '../views/Home.vue';
 import ViewAdmin from '../views/admin/viewCreate.vue';
 import ViewDesign from '../views/admin/viewDesign.vue';
 import Example from '../views/Example.vue';
+import Login from '../views/login/login.vue';
 
 const routes = [
   {
@@ -32,6 +33,11 @@ const routes = [
     path: '/example',
     name: 'Example',
     component: Example,
+  },
+  {
+    path: '/Login',
+    name: 'Login',
+    component: Login,
   },
 ];
 

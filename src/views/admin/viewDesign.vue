@@ -4,8 +4,7 @@
       <div class="md:col-span-1">
         <div class="px-4 sm:px-0 bg-gray-50">
           <h3 class="text-lg font-medium leading-6 text-gray-900">Contenedores</h3>
-          <draggable class="dragArea list-group w-full"
-            :list="data.listElement"
+          <draggable class="dragArea list-group w-full" :list="data.listElement"
             :group="{ name: 'elementDesign', pull: 'clone', put: false }"
             :sort="false" @change="log" :move="checkMove">
             <div v-for="element in data.listElement" :key="element.name">
@@ -28,8 +27,7 @@
               <div v-else class="hidden sm:block" aria-hidden="true">
                 <div class="relative mt-6">
                     <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300">
-                        </div>
+                        <div class="w-full border-t border-gray-300"></div>
                     </div>
                     <div class="relative flex justify-center text-sm leading-5">
                         <span class="px-2 bg-gray-50">
@@ -44,7 +42,7 @@
       </div>
 
       <div class="mt-5 md:mt-0 md:col-span-2 bg-white">
-        <form action="">
+        <form action="#">
           <fieldset>
             <legend class="font-bold text-gray-900">
               Diseño
@@ -59,9 +57,6 @@
                       v-for="element in data.formElement" :key="element.name">
                       <com-form v-if="element.id==='form'" :tasks="element">
                       </com-form>
-                      <div v-else>
-                        {{ element.name }}
-                      </div>
                     </div>
                   </transition-group>
                 </draggable>

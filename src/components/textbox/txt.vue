@@ -1,8 +1,7 @@
 <template>
   <div>
-    <label :for="PropsRef.name" class="block text-sm font-medium" :class="GetValueChild('selColLbl')">
-      {{ GetValueChild('lblLabel') }} 
-    </label>
+    <LblCustom :forLabel="PropsRef.name" v-model="PropsRef.label">
+    </LblCustom>
 
     <div class="mt-1 relative rounded-md shadow-sm">
       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -11,10 +10,10 @@
         </span>
       </div>
       
-      <input v-if="cssAdvanced" :type="type" :name="PropsRef.name" :id="PropsRef.id" :autocomplete="autocomplete" :class="GetValueChild('txtCssAdvanced')" :placeholder="GetValueChild('txtPlaceHolder')"
+      <input v-if="cssAdvanced" :type="type.value" :name="PropsRef.name" :id="PropsRef.id" :autocomplete="autocomplete" :class="GetValueChild('txtCssAdvanced')" :placeholder="GetValueChild('txtPlaceHolder')"
         @input="changeValue($event)" @keyup="validate();" />
 
-      <input v-else :type="type" :name="PropsRef.name" :id="PropsRef.id" :autocomplete="autocomplete" :class="classObj" :placeholder="GetValueChild('txtPlaceHolder')"
+      <input v-else :type="type.value" :name="PropsRef.name" :id="PropsRef.id" :autocomplete="autocomplete" :class="CssNormal" :placeholder="GetValueChild('txtPlaceHolder')"
         @input="changeValue($event)" @keyup="validate();" />
 
       <div class="absolute inset-y-0 right-0 flex items-center">
@@ -34,19 +33,22 @@
 <script>
 import { computed, reactive, ref } from 'vue';
 import Propiedades from '../menuProp.vue';
+import LblCustom from '../labels/lbl.vue';
 import * as yup from 'yup';
 
 export default {
   components: {
     Propiedades,
+    LblCustom,
   },
   props: {
     modelValue: {
       type: String,
+      default: 'TextBox'
     },
     Label: {
       type: String,
-      default: 'TextBox',
+      default: 'Caja de Texto',
     },
     type: {
       type: Object,
@@ -80,7 +82,8 @@ export default {
     const IdRandom = `txt_${Math.random().toString(36).substr(2)}`;
     const PropsRef = reactive({
       id: props.id,
-      name: props.name
+      name: props.name,
+      label: props.Label,
     })
     if (PropsRef.id === '') {
       PropsRef.id = PropsRef.name = IdRandom;
@@ -93,10 +96,9 @@ export default {
           items: [
             { type: 'check', id: 'chkEnabled', checked: true, label: 'Habilitado' },
             { type: 'text', id: 'txtName', value: PropsRef.name, label: 'Nombre', placeholder: 'Nombre', readonly: true },
-            { type: 'text', id: 'lblLabel', value: props.Label, label: 'Texto del Label', placeholder: 'Etiqueta', max: 30 },
-            { type: 'select', id: 'selColLbl', value: { value: 'text-red-500: true', text: 'Rojo' }, label: 'Color del Label', select: [
-              { value: 'text-red-500: true', text: 'Rojo' },
-              { value: 'text-yellow-200: true', text: 'Amarillo' },
+            { type: 'select', id: 'seltxtColor', value: { value: 'text-black', text: 'Negro' }, label: 'Color del Texto', select: [
+              { value: 'text-red-500', text: 'Rojo' },
+              { value: 'text-yellow-200', text: 'Amarillo' },
               { value: 'text-yellow-500', text: 'Naranja' },
               { value: 'text-green-500', text: 'Verde' },
               { value: 'text-blue-600', text: 'Azul' },
@@ -158,54 +160,15 @@ export default {
     ]);
     const valid = ref(false);
     const Error = ref([]);
-    const classObj = ref({
-      'mt-1': true,
-      block: true,
-      'w-full': true,
-      'pl-7': true,
-      'pr-12': true,
-      'shadow-sm': true,
-      'sm:text-sm': true,
-      'border-gray-300': true,
-      'rounded-md': true,
-      'focus:ring-indigo-500': true,
-      'focus:border-indigo-500': true,
-    });
-
+    
     const validate = () => {
       Error.value = [];
       props.rules.validate(props.modelValue, { abortEarly: false }).then(() => {
         valid.value = true;
-        classObj.value = {
-          'mt-1': true,
-          block: true,
-          'w-full': true,
-          'pl-7': true,
-          'pr-12': true,
-          'shadow-sm': true,
-          'sm:text-sm': true,
-          'border-gray-300': true,
-          'rounded-md': true,
-          'focus:ring-indigo-500': true,
-          'focus:border-indigo-500': true,
-        };
       }).catch((err) => {
         err.inner.forEach((error) => {
           Error.value.push(error.message);
           valid.value = false;
-          classObj.value = {
-            'mt-1': true,
-            block: true,
-            'w-full': true,
-            'pl-7': true,
-            'pr-12': true,
-            'shadow-sm': true,
-            'sm:text-sm': true,
-            'border-red-300': true,
-            'rounded-md': true,
-            'focus:ring-red-500': true,
-            'focus:border-red-500': true,
-          };
         });
       });
     };
@@ -213,6 +176,27 @@ export default {
     const changeValue = (value) => {
       emit('update:modelValue', value.target.value);
     };
+
+    const CssNormal = computed(() => {
+        const seltxtColor = menuProp.find(me => me.id === 'prop').items.find(it => it.id === 'seltxtColor').value;
+        const result = {
+            'mt-1': true,
+            block: true,
+            'w-full': true,
+            [seltxtColor.value]: true,
+            'pl-7': true,
+            'pr-12': true,
+            'shadow-sm': true,
+            'rounded-md': true,
+            'border-gray-300': valid.value || Error.value.lenght === 0,
+            'focus:ring-indigo-500': valid.value || Error.value.lenght === 0,
+            'focus:border-indigo-500': valid.value || Error.value.lenght === 0,
+            'focus:ring-red-500': !valid.value && Error.value.lenght > 0,
+            'focus:border-red-500': !valid.value && Error.value.lenght > 0,
+            'border-red-300': !valid.value && Error.value.lenght > 0,
+        }
+        return result;
+    });
 
     const cssAdvanced = computed(()=>{
       return menuProp.find(me => me.id === 'prop').items.find(it => it.id === 'chkAdvanced').checked;
@@ -227,7 +211,7 @@ export default {
       propiedadesMenu,
       valid,
       Error,
-      classObj,
+      CssNormal,
       menuProp,
       PropsRef,
 
