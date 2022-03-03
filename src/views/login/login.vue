@@ -5,9 +5,7 @@
         <img class="mx-auto h-12 w-auto" src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg" alt="Workflow" />
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Ingrese con su cuenta</h2>
         <p class="mt-2 text-center text-sm text-gray-600">
-          O
-          {{ ' ' }}
-          <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500"> comience su prueba gratuita de 14 días </a>
+          O {{ ' ' }} <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500"> comience su prueba gratuita de 14 días </a>
         </p>
       </div>
       <form class="mt-8 space-y-6" @submit.prevent="login">
@@ -15,11 +13,11 @@
         <div class="rounded-md shadow-sm -space-y-px">
           <div>
             <label for="email-address" class="block text-sm font-medium">E-mail/Usuario</label>
-            <input id="email-address" name="email" type="email" autocomplete="email" required="" class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Email/Usuario" />
+            <input v-model="userOrEmail" id="email-address" name="email" type="email" autocomplete="email" required="" class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Email/Usuario" />
           </div>
           <div class="mt-1 relative rounded-md shadow-sm">
             <label for="password" class="block text-sm font-medium">Contraseña</label>
-            <input id="password" name="password" :type="passType" autocomplete="current-password" required="" class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Password" />
+            <input v-model="password" id="password" name="password" :type="passType" autocomplete="current-password" required="" class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Password" />
             <div class="absolute inset-y-11 right-10 flex items-center">
               <button type="button">
                 <span class="absolute left-0 inset-y-0 flex items-center pl-3">
@@ -58,6 +56,9 @@
 <script>
 import { ref } from 'vue';
 import { LockClosedIcon, EyeIcon, EyeOffIcon } from '@heroicons/vue/solid'
+import Cookies from 'js-cookie'
+//import ws from '@/plugins/ws'
+import axios from 'axios'
 
 export default {
   components: {
@@ -75,7 +76,44 @@ export default {
     };
 
     function login () {
-      console.log('login.....');
+      var data = JSON.stringify({
+        "User": userOrEmail.value,
+        "Password": password.value
+      });
+
+      var config = {
+        method: 'post',
+        url: 'user',
+        headers: { 'Content-Type': 'application/json' },
+        data : data
+      };
+
+      axios(config).then(function (response) {
+        console.log(JSON.stringify(response.data));
+        Cookies.set('uuid', userOrEmail.value);
+      })
+      .catch(error => {
+
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          console.log(error.request);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log('Error', error.message);
+        }
+        console.log(error.config);
+
+
+        console.log(error.toJSON());
+      });
     }
 
     return {

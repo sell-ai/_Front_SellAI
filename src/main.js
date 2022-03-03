@@ -8,6 +8,6 @@ import './index.css';
 import 'typeface-cairo';
 import './plugins/yupi18';
 
-axios.defaults.baseURL = 'http://localhost:3000/api/';
+axios.defaults.baseURL = 'https://localhost:7132/api/';
 
 createApp(App).use(store).use(router).mount('#app');

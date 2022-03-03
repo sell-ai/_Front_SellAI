@@ -194,8 +194,8 @@ const navigation = [
         isActive: false,
       },
       {
-        name: 'E-Commerce',
-        link: '#',
+        name: 'Artículos',
+        link: '/Articulos',
         isActive: false,
       },
     ],

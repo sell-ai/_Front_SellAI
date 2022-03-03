@@ -9,12 +9,17 @@
     },
     "ignorePatterns": ["/node_modules/*.*"],
     "parserOptions": {
-        "parser": "babel-eslint",
+        "parser": "@babel/eslint-parser",
         "ecmaVersion": 8,
-        "sourceType": "module"
+        "sourceType": "module",
+        "requireConfigFile": false
     },
     "rules": {
-        "max-len": 0
+        "max-len": 0,
+        "no-loss-of-precision": "off",
+        "no-nonoctal-decimal-escape": "off",
+        "no-unsafe-optional-chaining": "off",
+        "no-useless-backreference": "off"
     },
     "extends": [
         "plugin:vue/vue3-essential",

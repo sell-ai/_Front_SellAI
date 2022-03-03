@@ -3,7 +3,7 @@ import Home from '../views/Home.vue';
 import ViewAdmin from '../views/admin/viewCreate.vue';
 import ViewDesign from '../views/admin/viewDesign.vue';
 import Example from '../views/Example.vue';
-import Login from '../views/login/login.vue';
+import ListProduct from '../views/articulos/list.vue';
 
 const routes = [
   {
@@ -39,9 +39,9 @@ const routes = [
         component: Example,
       },
       {
-        path: '/Login',
-        name: 'Login',
-        component: Login,
+        path: '/Articulos',
+        name: 'Articulos',
+        component: ListProduct,
       },
     ]
   },
