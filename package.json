@@ -12,6 +12,8 @@
     "@heroicons/vue": "^1.0.1",
     "core-js": "^3.6.5",
     "js-cookie": "^3.0.1",
+    "primeicons": "^5.0.0",
+    "primevue": "^3.12.4",
     "register-service-worker": "^1.7.1",
     "typeface-cairo": "^1.1.13",
     "vue": "^3.0.0",
