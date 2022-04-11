@@ -1,5 +1,14 @@
 <template>
-  <div>
+  <Toast />
+  <div v-if="loading">
+    <h5>Cargando...</h5>
+    <Skeleton class="mb-2"></Skeleton>
+    <Skeleton width="10rem" class="mb-2"></Skeleton>
+    <Skeleton width="5rem" class="mb-2"></Skeleton>
+    <Skeleton height="2rem" class="mb-2"></Skeleton>
+    <Skeleton width="10rem" height="4rem"></Skeleton>
+  </div>
+  <div v-else>
     <div class="md:grid md:grid-cols-3 md:gap-6">
       <div class="md:col-span-1">
         <div class="px-4 sm:px-0">
@@ -8,84 +17,87 @@
         </div>
       </div>
       <div class="mt-5 md:mt-0 md:col-span-2">
-        <form action="#" method="POST">
-          <div class="shadow sm:rounded-md sm:overflow-hidden">
-            <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-              <div class="grid grid-cols-3 gap-6">
-                <div class="col-span-6 sm:col-span-3">
-                  <label for="nombre-name" class="block text-sm font-medium text-gray-700"> Codigos</label>
-                  <Chips v-model="data.art.codigos" class="mt-1 w-full rounded-md">
-                  </Chips>
-                </div>
-
+        <div class="shadow sm:rounded-md sm:overflow-hidden">
+          <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+            <div class="grid grid-cols-3 gap-6">
+              <div class="col-span-6 sm:col-span-3">
+                <label for="nombre-name" class="block text-sm font-medium text-gray-700"> Codigos <span class="text-xs text-red-500">*</span></label>
+                <Chips v-model="data.art.codigos" class="mt-1 w-full rounded-md" :class="{'p-invalid': !!data.errors.codigos}" @blur="validate('codigos')">
+                </Chips>
+                <p class="block text-xs font-medium text-gray-500">
+                  Presione enter por cada código
+                </p>
+                <InlineMessage v-if="!!data.errors.codigos">{{ data.errors.codigos }}</InlineMessage>
               </div>
-              <div class="grid grid-cols-3 gap-6">
-                <div class="col-span-6 sm:col-span-3">
-                  <label for="nombre-name" class="block text-sm font-medium text-gray-700"> Nombre </label>
-                  <input v-model="data.art.nombre" type="text" name="nombre-name" id="serie-name" autocomplete="nombre-name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
-                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-6">
+              <div class="col-span-6 sm:col-span-3">
+                <label for="nombre-name" class="block text-sm font-medium text-gray-700"> Nombre <span class="text-xs text-red-500">*</span></label>
+                <input v-model="data.art.nombre" @blur="validate('nombre')" type="text" name="nombre-name" id="serie-name" autocomplete="nombre-name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+                <InlineMessage v-if="!!data.errors.nombre">{{ data.errors.nombre }}</InlineMessage>
               </div>
-              <div class="grid grid-cols-3 gap-6">
-                <div class="col-span-6 sm:col-span-3">
-                  <label for="categoria" class="block text-sm font-medium text-gray-700">Categoria</label>
-                  <AutoComplete name="categoria" v-model="data.art.categoria" :suggestions="data.filteredCategorias" @complete="searchCategoria($event)" :dropdown="true" field="nombre" forceSelection
-                    class="mt-1 w-full rounded-md">
-                  </AutoComplete>
-                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-6">
+              <div class="col-span-6 sm:col-span-3">
+                <label for="categoria" class="block text-sm font-medium text-gray-700">Categoria <span class="text-xs text-red-500">*</span></label>
+                <AutoComplete name="categoria" v-model="data.art.categoria" :suggestions="data.filteredCategorias" @complete="searchCategoria($event)" :dropdown="true" field="nombre" forceSelection
+                  class="mt-1 w-full rounded-md">
+                </AutoComplete>
+                <InlineMessage v-if="!!data.errors.categoria">{{ data.errors.categoria }}</InlineMessage>
               </div>
-
-              <div class="grid grid-cols-3 gap-6">
-                <div class="col-span-6 sm:col-span-3">
-                  <label for="marca" class="block text-sm font-medium text-gray-700">Marca</label>
-                  <AutoComplete name="marca" v-model="data.art.marca" :suggestions="data.filteredBrand" @complete="searchBrand($event)" :dropdown="true" field="nombre" forceSelection
-                    class="mt-1 w-full rounded-md">
-                  </AutoComplete>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-3 gap-6">
-                <div class="col-span-6 sm:col-span-3">
-                  <label for="serie-name" class="block text-sm font-medium text-gray-700">Serie</label>
-                  <input v-model="data.art.serie" type="text" name="serie-name" id="serie-name" autocomplete="serie-name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-6 gap-6">
-                <div class="col-span-6 sm:col-span-4">
-                  <label for="article-website" class="block text-sm font-medium text-gray-700"> Sitio Web </label>
-                  <div class="mt-1 flex rounded-md shadow-sm">
-                    <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> URL: </span>
-                    <input v-model="data.art.url" type="text" name="article-website" id="article-website" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300" placeholder="www.example.com" />
-                  </div>
-                </div>
-                <div class="col-span-3 sm:col-span-2">
-                  <label for="garantia" class="block text-sm font-medium text-gray-700"> Garantia </label>
-                  <div class="mt-1 relative rounded-md shadow-sm">
-                    <input type="text" name="garantia" id="garantia" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-md"  />
-                    <div class="absolute inset-y-0 right-0 flex items-center">
-                      <label for="tiempo" class="sr-only"> Tiempo </label>
-                      <select id="tiempo" name="tiempo" class="focus:ring-indigo-500 focus:border-indigo-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md">
-                        <option>Meses</option>
-                        <option>Días</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-3 gap-6">
-                <div class="col-span-6 sm:col-span-3">
-                  <label for="proveedor" class="block text-sm font-medium text-gray-700">Proveedor</label>
-                  <AutoComplete name="proveedor" v-model="data.art.proveedor" :suggestions="data.filteredProv" @complete="searchProveedor($event)" :dropdown="true" field="nombre" forceSelection
-                    class="mt-1 w-full rounded-md">
-                  </AutoComplete>
-                </div>
-              </div>
-
             </div>
 
+            <div class="grid grid-cols-3 gap-6">
+              <div class="col-span-6 sm:col-span-3">
+                <label for="marca" class="block text-sm font-medium text-gray-700">Marca <span class="text-xs text-red-500">*</span></label>
+                <AutoComplete name="marca" v-model="data.art.marca" :suggestions="data.filteredBrand" @complete="searchBrand($event)" :dropdown="true" field="nombre" forceSelection
+                  class="mt-1 w-full rounded-md">
+                </AutoComplete>
+                <InlineMessage v-if="!!data.errors.marca">{{ data.errors.marca }}</InlineMessage>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-6">
+              <div class="col-span-6 sm:col-span-3">
+                <label for="serie-name" class="block text-sm font-medium text-gray-700">Serie</label>
+                <input v-model="data.art.serie" type="text" name="serie-name" id="serie-name" autocomplete="serie-name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-6 gap-6">
+              <div class="col-span-6 sm:col-span-4">
+                <label for="article-website" class="block text-sm font-medium text-gray-700"> Sitio Web </label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                  <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> URL: </span>
+                  <input v-model="data.art.url" type="text" name="article-website" id="article-website" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300" placeholder="www.example.com" />
+                </div>
+              </div>
+              <div class="col-span-3 sm:col-span-2">
+                <label for="garantia" class="block text-sm font-medium text-gray-700"> Garantia </label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                  <input v-model="data.art.garantia" type="text" name="garantia" id="garantia" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-md"  />
+                  <div class="absolute inset-y-0 right-0 flex items-center">
+                    <label for="tiempo" class="sr-only"> Tiempo </label>
+                    <select v-model="data.art.tipoGarantia" id="tiempo" name="tiempo" class="focus:ring-indigo-500 focus:border-indigo-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md">
+                      <option>Meses</option>
+                      <option>Días</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-6">
+              <div class="col-span-6 sm:col-span-3">
+                <label for="proveedor" class="block text-sm font-medium text-gray-700">Proveedor <span class="text-xs text-red-500">*</span></label>
+                <AutoComplete name="proveedor" v-model="data.art.proveedor" :suggestions="data.filteredProv" @complete="searchProveedor($event)" :dropdown="true" field="nombre" forceSelection
+                  class="mt-1 w-full rounded-md">
+                </AutoComplete>
+                <InlineMessage v-if="!!data.errors.proveedor">{{ data.errors.proveedor }}</InlineMessage>
+              </div>
+            </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   </div>
@@ -105,84 +117,63 @@
         </div>
       </div>
       <div class="mt-5 md:mt-0 md:col-span-2">
-        <form action="#" method="POST">
-          <div class="shadow overflow-hidden sm:rounded-md">
-            <div class="px-4 py-5 bg-white sm:p-6">
-              <div class="grid grid-cols-6 gap-6">
+        <div class="shadow overflow-hidden sm:rounded-md">
+          <div class="px-4 py-5 bg-white sm:p-6">
+            <div class="grid grid-cols-6 gap-6">
 
-                <div class="col-span-6">
-                  <label for="cotiza-a" class="block text-sm font-medium text-gray-700">Moneda a cotizar</label>
-                  <Dropdown name="cotiza-a" class="mt-1 w-full" v-model="data.moneda" :options="data.monedas" optionLabel="nombre" :filter="true" placeholder="Moneda a cotizar">
-                    <template #value="slotProps">
-                        <div class="country-item country-item-value" v-if="slotProps.value">
-                            <div>{{slotProps.value.nombre}} ({{slotProps.value.codigo}} {{slotProps.value.valor}})</div>
-                        </div>
-                        <span v-else>
-                            {{slotProps.placeholder}}
-                        </span>
-                    </template>
-                    <template #option="slotProps">
-                        <div class="country-item">
-                            <div>{{slotProps.option.nombre}} ($ {{slotProps.option.valor}})</div>
-                        </div>
-                    </template>
-                  </Dropdown>
-                </div>
-
-                <div class="col-span-6 sm:col-span-3">
-                  <label for="precio-costo" class="block text-sm font-medium text-gray-700">Precio de costo</label>
-                  <InputNumber v-model="data.art.costo" mode="currency" currency="ARS" locale="es-AR" name="precio-costo" class="mt-1 w-full" />
-                </div>
-
-                <div class="col-span-6 sm:col-span-3">
-                  <label for="margen-costo" class="block text-sm font-medium text-gray-700">Margen</label>
-                  <InputNumber class="mt-1 w-full" name="margen-costo" v-model="data.art.margen" suffix="%" />
-                </div>
-
-                <div class="col-span-6">
-                  <label for="taxes" class="block text-sm font-medium text-gray-700">Impuestos</label>
-                  <MultiSelect name="taxes" v-model="data.art.impuestos" :options="data.taxes" optionLabel="nombre" placeholder="Impuestos a incluir" :filter="true" class="mt-1 multiselect-custom w-full" />
-                </div>
-
-                <div class="col-span-6">
-                  <div class="w-full text-gray-900 bg-white border border-gray-200 rounded-lg">
-                      <div class="relative inline-flex w-full px-4 py-2 text-sm border-b border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
-                          <div class="text-left font-medium">Subtotal</div>
-                          <div class="text-right"> $20</div>
+              <div class="col-span-6">
+                <label for="cotiza-a" class="block text-sm font-medium text-gray-700">Moneda a cotizar</label>
+                <Dropdown name="cotiza-a" class="mt-1 w-full" v-model="moneda" :options="data.monedas" optionLabel="nombre" :filter="true" placeholder="Moneda a cotizar">
+                  <template #value="slotProps">
+                      <div class="country-item country-item-value" v-if="slotProps.value">
+                          <div>{{slotProps.value.nombre}} ({{slotProps.value.codigo}} {{slotProps.value.valor}})</div>
                       </div>
-                      <button type="button" class="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                          <svg class="w-4 h-4 mr-2 fill-current" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"></path></svg>
-                          Settings
-                      </button>
-                      <button type="button" class="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                          <svg class="w-4 h-4 mr-2 fill-current" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v7h-2l-1 2H8l-1-2H5V5z" clip-rule="evenodd"></path></svg>
-                          Messages
-                      </button>
-                      <button type="button" class="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium rounded-b-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                          <svg class="w-4 h-4 mr-2 fill-current" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M2 9.5A3.5 3.5 0 005.5 13H9v2.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 15.586V13h2.5a4.5 4.5 0 10-.616-8.958 4.002 4.002 0 10-7.753 1.977A3.5 3.5 0 002 9.5zm9 3.5H9V8a1 1 0 012 0v5z" clip-rule="evenodd"></path></svg>
-                          Download
-                      </button>
-                  </div>
-                </div>
+                      <span v-else>
+                          {{slotProps.placeholder}}
+                      </span>
+                  </template>
+                  <template #option="slotProps">
+                      <div class="country-item">
+                          <div>{{slotProps.option.nombre}} ($ {{slotProps.option.valor}})</div>
+                      </div>
+                  </template>
+                </Dropdown>
+              </div>
 
-                <div class="col-span-6 sm:col-span-6 lg:col-span-2">
-                  <label for="city" class="block text-sm font-medium text-gray-700">City</label>
-                  <input type="text" name="city" id="city" autocomplete="address-level2" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
-                </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label for="precio-costo" class="block text-sm font-medium text-gray-700">Precio de costo</label>
+                <InputNumber v-model="data.art.costo" mode="currency" currency="ARS" locale="es-AR" name="precio-costo" class="mt-1 w-full" />
+              </div>
 
-                <div class="col-span-6 sm:col-span-3 lg:col-span-2">
-                  <label for="region" class="block text-sm font-medium text-gray-700">State / Province</label>
-                  <input type="text" name="region" id="region" autocomplete="address-level1" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
-                </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label for="margen-costo" class="block text-sm font-medium text-gray-700">Margen</label>
+                <InputNumber class="mt-1 w-full" name="margen-costo" v-model="data.art.margen" suffix="%" />
+              </div>
 
-                <div class="col-span-6 sm:col-span-3 lg:col-span-2">
-                  <label for="postal-code" class="block text-sm font-medium text-gray-700">ZIP / Postal code</label>
-                  <input type="text" name="postal-code" id="postal-code" autocomplete="postal-code" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+              <div class="col-span-6">
+                <label for="taxes" class="block text-sm font-medium text-gray-700">Impuestos</label>
+                <MultiSelect name="taxes" v-model="data.art.impuestos" :options="data.taxes" optionLabel="nombre" placeholder="Impuestos a incluir" :filter="true" class="mt-1 multiselect-custom w-full" />
+              </div>
+
+              <div class="col-span-6">
+                <div class="w-full text-gray-900 bg-white border border-gray-200 rounded-lg ">
+                    <div class="sm:flex sm:items-center sm:justify-between w-full px-4 py-2 text-sm border-b border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+                        <div class="font-bold">Subtotal:</div>
+                        <div class="sm:flex"> $ {{subTotal}}</div>
+                    </div>
+                    <div class="sm:flex sm:items-center sm:justify-between w-full px-4 py-2 text-sm border-b border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+                        <div class="font-bold">Impuestos:</div>
+                        <div class="sm:flex"> $ {{impuestos}}</div>
+                    </div>
+                    <div class="sm:flex sm:items-center sm:justify-between w-full px-4 py-2 text-sm bg-indigo-100 border-b border-indigo-500 rounded-t-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+                        <div class="font-bold">TOTAL:</div>
+                        <div class="sm:flex"> $ {{subTotal + impuestos}}</div>
+                    </div>
                 </div>
               </div>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   </div>
@@ -202,117 +193,205 @@
         </div>
       </div>
       <div class="mt-5 md:mt-0 md:col-span-2">
-        <form action="#" method="POST">
-          <div class="shadow sm:rounded-md sm:overflow-hidden">
-            <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-              <div class="col-span-6 sm:col-span-3">
-                  <label for="tipo-articulo" class="block text-sm font-medium text-gray-700">Tipo de Artículo</label>
-                  <select name="tipo-articulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    <option>Servicio</option>
-                    <option>Producto Simple</option>
-                    <option>Producto Compuesto</option>
-                  </select>
-              </div>
-              <div class="col-span-6 sm:col-span-3">
-                  <label for="tipo-articulo" class="block text-sm font-medium text-gray-700">Unidad</label>
-                  <select name="tipo-articulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    <option>Servicio</option>
-                    <option>Producto Simple</option>
-                    <option>Producto Compuesto</option>
-                  </select>
-              </div>
-              <div class="col-span-6 sm:col-span-3">
-                  <label for="tipo-articulo" class="block text-sm font-medium text-gray-700">Seguimiento</label>
-                  <select name="tipo-articulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    <option>Predeterminado</option>
-                    <option selected>Ninguno</option>
-                    <option>Por numero de serie</option>
-                    <option>Por varaciones</option>
-                  </select>
-              </div>
-
-              <div class="grid grid-cols-3 gap-6">
-                <div class="col-span-3 sm:col-span-6">
-                  <label for="stock-min" class="block text-sm font-medium text-gray-700"> Punto de reposición </label>
-                  <InputNumber name="stock-min" v-model="data.art.stockminimo" mode="decimal" :min="0" stockminimo :minFractionDigits="2" class="mt-1 w-full" />
-                </div>
-                <div class="col-span-3 sm:col-span-6">
-                  <label for="stock-max" class="block text-sm font-medium text-gray-700"> Stock Máximo </label>
-                  <InputNumber name="stock-max" v-model="data.art.stockmaximo" mode="decimal" :min="0" stockminimo :minFractionDigits="2" class="mt-1 w-full" />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-3 gap-6">
-                <div class="col-span-6">
-                  <fieldset>
-                    <legend class="text-base font-medium text-gray-900">Stock</legend>
-                    <div class="mt-4 space-y-4">
-                      <div class="flex items-start">
-                        <div class="ml-3 text-sm">
-                          <label for="comments" class="font-medium text-gray-700">Actual</label>
-                          <p class="text-gray-500">0</p>
+        <div class="shadow sm:rounded-md sm:overflow-hidden">
+          <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+            <div class="col-span-6 sm:col-span-3">
+                <label for="tipo-articulo" class="block text-sm font-medium text-gray-700">Tipo de Artículo</label>
+                <select name="tipo-articulo" v-model="data.art.tipoArticulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  <option>Servicio</option>
+                  <option>Producto Simple</option>
+                  <option>Producto Compuesto</option>
+                </select>
+            </div>
+            <div class="col-span-6 sm:col-span-3">
+                <div class="grid grid-cols-6 gap-2 flex">
+                  <div class="col-span-5 flex-grow inline-block">
+                    <label for="tipo-articulo" class="block text-sm font-medium text-gray-700">Unidad</label>
+                    <select v-model="data.art.unidad.cadaUno" name="tipo-articulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                      <option v-for="item in data.performance" :key="item.codigo" :value="item.codigo">{{ item.nombre }}</option>
+                    </select>
+                    <p class="mt-2 text-xs text-gray-500">{{rendimiento}}</p>
+                  </div>
+                  <div class="col-span-1 flex-none inline-block mt-8">
+                    <button @click="toggle" class="w-auto flex text-xs font-medium bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 rounded-full">
+                      ...
+                    </button>
+                    <OverlayPanel ref="op" appendTo="body" :showCloseIcon="true" id="overlay_panel" style="width: 450px" :breakpoints="{'960px': '75vw'}">
+                      <div class="flex p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-blue-200 dark:text-blue-800" role="alert">
+                        <svg class="inline flex-shrink-0 mr-3 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                        <div>
+                          <span class="font-medium">Nota</span> Si el artículo se compra y se vende en diferentes unidades, por ejemplo los artículos que se venden fraccionados, puede proporcionar esa información aquí:
                         </div>
                       </div>
-                    </div>
-                  </fieldset>
+                      <div class="grid grid-cols-6 gap-2">
+                        <div class="col-span-6">
+                          <label for="compra-articulo" class="block text-sm font-medium text-gray-700">El artículo se compra en</label>
+                          <select v-model="data.art.unidad.buyin" name="compra-articulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option v-for="item in data.performance" :key="item.codigo" :value="item.codigo">{{ item.nombre }}</option>
+                          </select>
+                        </div>
+                        <div class="col-span-6">
+                          <label for="rinde-articulo" class="block text-sm font-medium text-gray-700">Cada uno/a rinde</label>
+                          <InputNumber name="rinde-articulo" v-model="data.art.unidad.valor" mode="decimal" :minFractionDigits="2" :maxFractionDigits="5" class="mt-1 block w-full" />
+                        </div>
+                        <div class="col-span-6">
+                          <label for="cada-articulo" class="block text-sm font-medium text-gray-700">c/u</label>
+                          <select v-model="data.art.unidad.cadaUno" name="cada-articulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option v-for="item in data.performance" :key="item.codigo" :value="item.codigo">{{ item.nombre }}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </OverlayPanel>
+                  </div>
                 </div>
-              </div>
+            </div>
+            <div class="col-span-">
 
             </div>
+            <div class="col-span-6 sm:col-span-3">
+                <label for="tipo-articulo" class="block text-sm font-medium text-gray-700">Seguimiento</label>
+                <select v-model="data.art.seguimiento" name="tipo-articulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  <option>Predeterminado</option>
+                  <option>Ninguno</option>
+                  <option>Por numero de serie</option>
+                  <option>Por varaciones</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-3 gap-6">
+              <div class="col-span-3 sm:col-span-6">
+                <label for="stock-min" class="block text-sm font-medium text-gray-700"> Punto de reposición </label>
+                <InputNumber name="stock-min" v-model="data.art.stockMinimo" mode="decimal" :min="0" stockminimo :minFractionDigits="2" class="mt-1 w-full" />
+              </div>
+              <div class="col-span-3 sm:col-span-6">
+                <label for="stock-max" class="block text-sm font-medium text-gray-700"> Stock Máximo </label>
+                <InputNumber name="stock-max" v-model="data.art.stockMaximo" mode="decimal" :min="0" stockminimo :minFractionDigits="2" class="mt-1 w-full" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-6">
+              <!-- Code block starts -->
+              <div class="col-span-6">
+                <div class="flex items-center justify-center px-4">
+                    <div role="alert" id="alert" class="transition duration-150 ease-in-out w-full lg:w-11/12 mx-auto bg-white dark:bg-gray-800 shadow rounded flex flex-col py-4 md:py-0 items-center md:flex-row justify-between">
+                        <div class="flex flex-col items-center md:flex-row">
+                            <div class="mr-3 p-4 bg-yellow-400 rounded md:rounded-tr-none md:rounded-br-none text-white">
+                                <InformationCircleIcon class="w-5 h-5" aria-hidden="true" />
+                            </div>
+                            <p class="mr-2 text-base font-bold text-gray-800 dark:text-gray-100 mt-2 md:my-0">Stock</p>
+                            <div class="h-1 w-1 bg-gray-300 dark:bg-gray-700 rounded-full mr-2 hidden xl:block"></div>
+                            <p class="text-sm lg:text-base dark:text-gray-400 text-gray-600 lg:pt-1 xl:pt-0 sm:mb-0 mb-2 text-center sm:text-left">{{data.stock}}</p>
+                        </div>
+                        <div class="flex xl:items-center lg:items-center sm:justify-end justify-center pr-4">
+                            <button class="focus:outline-none focus:text-indigo-400 hover:text-indigo-400 text-sm mr-4 font-bold cursor-pointer text-indigo-700 dark:text-indigo-600">Detalle</button>
+                        </div>
+                    </div>
+                </div>
+              </div>
+              <!-- Code block ends -->
+            </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
+  </div>
+
+  <Divider />
+
+  <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+    <button @click="Save" type="button" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500">
+      <i class="pi pi-save" /> Grabar
+    </button>
   </div>
 </template>
 
 <script>
-  import { reactive, ref, onMounted } from 'vue';
+  import { reactive, ref, onMounted, computed } from 'vue';
+  import { InformationCircleIcon } from '@heroicons/vue/solid'
   import WService from './services/ws';
   import AutoComplete from 'primevue/autocomplete';
   import Chips from 'primevue/chips';
   import Dropdown from 'primevue/dropdown';
   import InputNumber from 'primevue/inputnumber';
   import MultiSelect from 'primevue/multiselect';
+  import OverlayPanel from 'primevue/overlaypanel';
+  import Divider from 'primevue/divider';
+  import Toast from 'primevue/toast';
+  import { useToast } from "primevue/usetoast";
+  import InlineMessage from 'primevue/inlinemessage';
+  import Skeleton from 'primevue/skeleton';
+
+  import { object, string, array } from "yup";
+  
   export default {
+    props: {
+      info: Object,
+    },
+    emits: ['closeModal'],
     components: {
+      InformationCircleIcon,
       AutoComplete,
       Chips,
       Dropdown,
       InputNumber,
       MultiSelect,
+      OverlayPanel,
+      Divider,
+      Toast,
+      InlineMessage,
+      Skeleton,
     },
-    setup() {
+    setup(props, { emit }) {
+        const toast = useToast();
         const wService = ref(new WService());
+        const loading = ref(true);
+        const load = ref(false);
+        const op = ref();
+        const moneda = ref();
         onMounted(() => {
             wService.value.getMoneda().then(inf => {
-              inf.forEach(item => {
-                const newItem = {
-                  nombre: item.nombre,
-                  codigo: item.codigo,
-                  valor: item.valor,
-                }
-                data.monedas.push(newItem);
+              inf.forEach(j => {
+                data.monedas.push(j);
+                if (j.predeterminada)
+                  moneda.value = j;
               })
             });
-
             wService.value.getTaxes().then(inf => data.taxes = inf);
+            wService.value.getPerformance().then(inf => data.performance = inf.value); //loading false
+            if (props.info) {
+              data.art = props.info;
+              loading.value = false;
+            }
         })
         const data = reactive({
             art: {
+              id: '',
               codigos: [],
               nombre: '',
-              categoria: '',
-              marca: '',
+              categoria: null,
+              marca: null,
               serie: '',
               url: '',
               descripcion: '',
-              proveedor: '',
+              tipoGarantia: 'Meses',
+              garantia: 0,
+              proveedor: null,
               costo: 0,
+              moneda: {},
               margen: 0,
               impuestos: [],
-              stockminimo: 0,
-              stockmaximo: 0
+              pvp: 0,
+              stockMinimo: 0,
+              stockMaximo: 0,
+              stock: 0,
+              tipoArticulo: 'Producto Simple',
+              unidad: {
+                buyin: 1,
+                valor: 1,
+                cadaUno: 1
+              },
+              seguimiento: 'Predeterminado',
+              bucket: {}
             },
             categorias: [],
             filteredCategorias: [],
@@ -321,14 +400,69 @@
             proveedor: [],
             filteredProv: [],
             monedas: [],
-            moneda: null,
-            taxes: [],
+            taxes: null,
+            performance: null,
+            errors: {}
         });
+
+        const validate = (field) => {
+          validateSave.validateAt(field, data.art).then(() => {
+              data.errors[field] = "";
+            }).catch(err => {
+              data.errors[field] = err.message;
+            });
+        };
+        
+        const validateSave = object().shape({
+          codigos: array(string().required().nullable()).min(1, 'El campo códigos debe tener al menos 1 elemento'),
+          nombre: string().required("El campo nombre debe completarse"),
+          categoria: object().required("Debe seleccionar categoría").nullable(),
+          marca: object().required("Debe seleccionar marca").nullable(),
+          proveedor: object().required("Debe seleccionar proveedor").nullable(),
+        });
+
+        const Save = () => {
+          load.value = true;
+          validateSave.validate(data.art, { abortEarly: false }).then(() => {
+            data.art.pvp = subTotal.value + impuestos.value; //suma el pvp
+            data.art.moneda = {
+              nominal: moneda.value.valor,
+              simbolo: moneda.value.simbolo,
+              lugar: moneda.value.lugar,
+              desde:moneda.value.desde
+            }
+            const toSave = JSON.stringify(data.art);
+            wService.value.postArticulo(toSave, data.art.id).then(res => {
+              console.log(res);
+              load.value = false;
+              closeModal();
+            }).catch(error => {
+              load.value = false;
+              if (error.response) {
+                console.log("Error Response", error.response.data);
+                for(const [value] of Object.entries(error.response.data.errors)){
+                  console.log(error.response.data.errors[value][0]);
+                }
+              } else if (error.request) {
+                console.log("Error Request", error.request);
+                console.log("Error Message", error.request.message);
+              } else {
+                console.log(error.toJSON());
+              }
+            });
+          }).catch(err => {
+            toast.add({severity:'warn', summary: 'Atención!', detail:'Verifique los campos para poder grabar', life: 3000});
+            load.value = false;
+            err.inner.forEach(error => {
+              data.errors[error.path] = error.message;
+            });
+          });
+        };
 
         //Método del autocomplete
         const searchCategoria = (event) => {
             setTimeout(() => {
-                if (data.categorias.length == 0) {
+                if (data.categorias && data.categorias.length == 0) {
                   wService.value.getCategorias().then(info => {
                     data.categorias = info;
                     filters(event.query, 'filteredCategorias', 'categorias');
@@ -343,7 +477,7 @@
         //Método del autocomplete
         const searchBrand = (event) => {
             setTimeout(() => {
-                if (data.marcas.length == 0) {
+                if (data.marcas && data.marcas.length == 0) {
                   wService.value.getBrand().then(info => {
                     data.marcas = info;
                     filters(event.query, 'filteredBrand', 'marcas');
@@ -358,7 +492,7 @@
         //Método del autocomplete
         const searchProveedor = (event) => {
             setTimeout(() => {
-                if (data.proveedor.length == 0) {
+                if (data.proveedor && data.proveedor.length == 0) {
                   wService.value.getProveedor().then(info => {
                     data.proveedor = info;
                     filters(event.query, 'filteredProv', 'proveedor');
@@ -382,12 +516,63 @@
             }
         }
 
-        return {
-            data,
+        //Para mostrar el overpanel
+        const toggle = (event) => {
+            op.value.toggle(event);
+        };
 
+        //Calcula subtotal
+        const subTotal = computed(() => {
+          let monedaLocal = data.art.costo;
+          if (moneda.value) {
+            monedaLocal = moneda.value.valor * data.art.costo;
+          }
+          const margen = monedaLocal * data.art.margen / 100;
+          return monedaLocal + margen;
+        })
+
+        //Calculo Impuestos
+        const impuestos = computed(() => {
+          let totalImpuesto = 0;
+          data.art.impuestos.forEach(imp => {
+            const subImp = subTotal.value * imp.valor / 100;
+            totalImpuesto += subImp;
+          })
+
+          return totalImpuesto;
+        })
+
+        //Muestra el rendimiento de las unidades
+        const rendimiento = computed(() => {
+          if (data.performance && data.performance.length > 0) {
+            const buyName = data.performance.find(x => x.codigo === data.art.unidad.buyin);
+            const cadaName = data.performance.find(x => x.codigo === data.art.unidad.cadaUno);
+            return "Cada " + buyName.nombre + " es " + data.art.unidad.valor + " " + cadaName.nombre;
+          }
+          return "Cada Unidad es 1";
+        })
+
+        const closeModal = () => {
+            emit("closeModal", false)
+        }
+
+        return {
+            loading,
+            op,
+            moneda,
+            data,
+            load,
+            
+            Save,
             searchCategoria,
             searchBrand,
             searchProveedor,
+            toggle,
+            subTotal,
+            impuestos,
+            rendimiento,
+            closeModal,
+            validate,
         };
     },
   }
