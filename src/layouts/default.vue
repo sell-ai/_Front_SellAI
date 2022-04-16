@@ -168,7 +168,7 @@ export default {
           {
             label: 'Listado',
             icon: 'pi pi-fw pi-table',
-            to: '/Articulos',
+            to: '/articulos',
           },
           {
             label: 'Parametros',

@@ -1,9 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router';
+
 import Home from '../views/Home.vue';
 import ViewAdmin from '../views/admin/viewCreate.vue';
 import ViewDesign from '../views/admin/viewDesign.vue';
 import Example from '../views/Example.vue';
 import ListProduct from '../views/articulos/list.vue';
+import ListCategory from '../views/articulos/categorias.vue';
+import ListBrand from '../views/articulos/marcas.vue';
+import ListMoneda from '../views/articulos/monedas.vue';
+
 import Cookies from 'js-cookie'
 
 const meta = { auth: true }
@@ -46,9 +51,27 @@ const routes = [
         meta,
       },
       {
-        path: '/Articulos',
+        path: '/articulos',
         name: 'Articulos',
         component: ListProduct,
+        meta,
+      },
+      {
+        path: '/categorias',
+        name: 'Categorias',
+        component: ListCategory,
+        meta,
+      },
+      {
+        path: '/marcas',
+        name: 'Marcas',
+        component: ListBrand,
+        meta,
+      },
+      {
+        path: '/moneda',
+        name: 'Moneda',
+        component: ListMoneda,
         meta,
       },
     ]

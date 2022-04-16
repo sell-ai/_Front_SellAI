@@ -1,2 +1,14 @@
-☐ Realizar control de grabar en articulos
-☐ En ws.js verificar si funciona sin colocar toda la url completa.
+------------------------------------------------------------------------------------------
+|  Ctrl+Enter --> Nueva tarea.                                                           |
+|  Alt+d      --> Completar tarea.                                                       |
+|  Alt+c      --> Cancelar tarea.                                                        |
+|  Tags: @critical @high @low @today                                                     |
+|                                                                                        |
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+----------------------------------------  TAREAS  ----------------------------------------
+☐ Agregar métodos para traer los registros activados solamente. @low 
+☐ Agregar Store para manejar "breadcrumb" y título del sitio. @low 
+☐ Agregar para cerrar sesión del sitio. @high 
+☐ Agregar token para validar usuario. @high 
+☐ Agregar demás parámetros de artículos. @today

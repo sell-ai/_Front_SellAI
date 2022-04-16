@@ -5,7 +5,7 @@
             <Toolbar class="mb-4">
                 <template #start>
                     <Button label="Nuevo" icon="pi pi-plus" class="p-button-success mr-2" @click="setModal(true, true)" />
-                    <Button label="Borrar" icon="pi pi-trash" class="p-button-danger" @click="confirmDeleteSelected(true)" :disabled="!selectedProducts || !selectedProducts.length" />
+                    <Button label="Borrar" icon="pi pi-trash" class="p-button-danger" @click="confirmDeleteSelected(true)" :disabled="!selectedDatas || !selectedDatas.length" />
                 </template>
 
                 <template #end>
@@ -13,19 +13,20 @@
                 </template>
             </Toolbar>
 
-            <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true" :rows="10" :filters="filters"
+            <DataTable ref="dt" :value="dataModel" v-model:selection="selectedDatas" dataKey="id" :paginator="true" :rows="10" :filters="filters"
                 class="p-datatable-sm" showGridlines :loading="loading"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" :rowsPerPageOptions="[5,10,25]"
                 currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}" responsiveLayout="scroll">
                 <template #header>
                     <div class="table-header flex flex-column md:flex-row md:justiify-content-between">
-						<h5 class="mb-2 md:m-0 p-as-md-center">Listado de artículos</h5>
+						<h5 class="mb-2 md:m-0 p-as-md-center">Listado de {{ titulo }}</h5>
 						<span class="p-input-icon-left">
                             <i class="pi pi-search" />
                             <InputText v-model="filters['global'].value" placeholder="Buscar..." />
                         </span>
 					</div>
                 </template>
+
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
                 <Column v-for="col of columnsData" :field="col.field" :header="col.header" :key="col.field" :sortable="col.sort" :style="col.style" :exportable="col.export">
                     <template #body="slotProp">
@@ -36,15 +37,7 @@
                             <i v-if="slotProp.data[col.field]" class="pi pi-check"></i>
                             <i v-else class="pi pi-times"></i>
                         </span>
-                        <div v-else-if="col.type == 'array'" v-for="ar in slotProp.data[col.field]" :key="ar" class="text-sm font-medium text-gray-900">
-                            <span v-html="highlightMatches(ar)"></span>
-                        </div>
-                        <div v-else-if="col.type == 'currency'">
-                            {{formatCurrency(slotProp.data[col.field])}}
-                        </div>
-                        <div v-else class="text-sm font-medium text-gray-900">
-                            <span v-if="col.object" v-html="highlightMatches(slotProp.data[col.field][col.object])"></span>
-                            <span v-else v-html="highlightMatches(slotProp.data[col.field])"></span>
+                        <div v-else class="text-sm font-medium text-gray-900" v-html="highlightMatches(slotProp.data[col.field])">
                         </div>
                     </template>
                 </Column>
@@ -57,38 +50,39 @@
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="deleteProductDialog" :style="{width: '450px'}" header="¡Atención!" :modal="true">
+        <Dialog v-model:visible="deleteDataDialog" :style="{width: '450px'}" header="¡Atención!" :modal="true">
             <div class="confirmation-content">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                <span v-if="duplicate">¿Desea <span class="text-indigo-400">duplicar</span> el siguiente: <b>{{ product.nombre }}</b>?</span>
-                <span v-else>¿Desea eliminar el siguiente producto: <b>{{ product.nombre }}</b>?</span>
+                <span v-if="duplicate">¿Desea <span class="text-indigo-400">duplicar</span> el siguiente: <b>{{ dataOnly.nombre }}</b>?</span>
+                <span v-else>¿Desea eliminar el siguiente {{ titulo }}: <b>{{ dataOnly.nombre }}</b>?</span>
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false"/>
-                <Button label="Si" icon="pi pi-check" class="p-button-text" @click="deleteOrDuplicateProduct" :disabled="loading" />
+                <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteDataDialog = false"/>
+                <Button label="Si" icon="pi pi-check" class="p-button-text" @click="deleteAndDuplicateData" :disabled="loading" />
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteProductsDialog" :style="{width: '450px'}" header="¿Desea eliminar todos los seleccionados?" :modal="true">
+        <Dialog v-model:visible="deleteDatasDialog" :style="{width: '450px'}" header="¿Desea eliminar todos los seleccionados?" :modal="true">
             <div class="confirmation-content">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                <span v-if="product">¿Estas seguro que desea eliminar los productos seleccionados?</span>
-                <span class="block">Cantidad: {{selectedProducts.length}}</span>
+                <span v-if="dataOnly">¿Estas seguro que desea eliminar los {{ titulo }} seleccionados?</span>
+                <span class="block">Cantidad: {{selectedDatas.length}}</span>
             </div>
             <template #footer>
                 <Button label="No" icon="pi pi-times" class="p-button-text" @click="confirmDeleteSelected(false)"/>
-                <Button label="Si" icon="pi pi-check" class="p-button-text" @click="deleteSelectedProducts" :disabled="loading" />
+                <Button label="Si" icon="pi pi-check" class="p-button-text" @click="deleteSelectedDatas" :disabled="loading" />
             </template>
         </Dialog>
 
-        <Dialog header="Artículo" v-model:visible="productDialog" :breakpoints="{'960px': '75vw'}" :style="{width: '50vw'}" :maximizable="true" :modal="true">
-            <EditProduct @closeModal="setModal" :info="product" />
+        <Dialog :header="titulo" v-model:visible="dataDialog" :breakpoints="{'960px': '75vw'}" :style="{width: '50vw'}" :maximizable="true" :modal="true">
+            <EditList @closeModal="setModal" :info="dataOnly" :fieldsEd="fieldsEdit" :WService="refWs" :postMethod="postMethod" />
         </Dialog>
+
 	</div>
 </template>
 
 <script>
-import {  ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { FilterMatchMode } from 'primevue/api';
 
 import DataTable from 'primevue/datatable';
@@ -100,19 +94,47 @@ import Menu from 'primevue/menu';
 import InputText from 'primevue/inputtext';
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
-import EditProduct from './edit'
-import WService from './services/ws';
+import EditList from './edit'
 
 export default {
     components: {
         DataTable, Toolbar, Column, Dialog, Button, Menu, InputText,
-        EditProduct, Toast
+        Toast, EditList
     },
-    setup() {
+    props: {
+        title: {
+            type: String,
+            required: true
+        },
+        columns: {
+            type: Array,
+            required: true
+        },
+        wServices: {
+            type: Function,
+            required: true
+        },
+        methodGet: {
+            type: String,
+            required: true
+        },
+        methodPost: {
+            type: String,
+            required: true
+        },
+        methodDelete: {
+            type: String,
+            required: true
+        },
+        editFields: {
+            type: Array,
+        },
+    },
+    setup(props) {
         onMounted(() => {
-            loading.value = true;
-            wService.value.getProducts().then(data => {
-                products.value = data;
+            //trae datos del formulario.
+            wsProp[props.methodGet]().then(data => {
+                dataModel.value = data
                 loading.value = false;
             }).catch(ex => {
                 loading.value = false;
@@ -120,28 +142,26 @@ export default {
             });
         })
         const toast = useToast();
-        const wService = ref(new WService());
-        const loading = ref(false);
+        const refWs = ref(props.wServices);
+        const postMethod = ref(props.methodPost);
+        const wsProp = new props.wServices();
+        const titulo = ref(props.title); //titulo de la vista.
         const duplicate = ref(false); //indica si se va a duplicar item de la grilla.
-        const columnsData = ref([
-            {field: 'codigos', header: 'Codigos', sort: true, export: true, style: 'min-width:12rem', type: 'array' },
-            {field: 'nombre', header: 'Nombre', sort: true, export: true, style: 'min-width:16rem' },
-            {field: 'marca', object: 'nombre', header: 'Marca', sort: true, export: true, style: 'min-width:10rem' },
-            {field: 'categoria', object: 'nombre', header: 'Categoria', sort: true, export: true, style: 'min-width:10rem' },
-            {field: 'pvp', header: 'Precio', sort: true, export: true, style: 'min-width:8rem', type: 'currency' },
-            {field: 'stock', header: 'Stock', sort: true, export: true, style: 'min-width:12rem' },
-        ]);
+        const loading = ref(true); //Cargando general
         const menu = ref([]); //referencia la menu de la grilla
         const dt = ref(); //referencia a la tabla.
-        const products = ref();
-        const productDialog = ref(false);
-        const deleteProductDialog = ref(false);
-        const deleteProductsDialog = ref(false);
-        const product = ref({});
-        const selectedProducts = ref();
+        const dataModel = ref(); //Datos de la tabla
+        const columnsData = ref(props.columns) //Datos de la columnas
+        const fieldsEdit = ref(props.editFields);
+        const dataDialog = ref(false); //Para mostrar el editar
+        const deleteDataDialog = ref(false); //Para mostrar desactivar un solo dato
+        const deleteDatasDialog = ref(false); //Para mostrar desactivar varios datos
+        const dataOnly = ref({}); //Cuando selecciono un dato
+        const selectedDatas = ref(); //Datos que seleccione
         const filters = ref({
             'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
         });
+
         const itemsMenu = ref([
             {
                 label: 'Opciones',
@@ -150,14 +170,14 @@ export default {
                         label: 'Editar',
                         icon: 'pi pi-pencil',
                         command: () => {
-                            setModal(true)
+                            setModal(true);
                         }
                     },
                     {
                         label: 'Duplicar',
                         icon: 'pi pi-copy',
                         command: () => {
-                            deleteProductDialog.value = true;
+                            deleteDataDialog.value = true;
                             duplicate.value = true;
                         }
                     },
@@ -166,10 +186,10 @@ export default {
                         separator: true
                     },
                     {
-                        label: 'Borrar',
+                        label: 'Eliminar',
                         icon: 'pi pi-trash',
                         command: () => {
-                            deleteProductDialog.value = true;
+                            deleteDataDialog.value = true;
                         }
                     },
                 ]
@@ -180,7 +200,7 @@ export default {
             menu.value[id] = el;
         }
 
-        //Con la busqueda lo carga en negrita
+        //Con la busqueda lo carga en color rojo
         const highlightMatches = (text) => {
             if (!filters.value["global"].value) return text;
             const matchExists = text.toLowerCase().includes(filters.value["global"].value.toLowerCase());
@@ -193,89 +213,92 @@ export default {
          const formatCurrency = (value) => {
             if(value)
 				return value.toLocaleString('en-US', {style: 'currency', currency: 'USD'});
-			return "0".toLocaleString('en-US', {style: 'currency', currency: 'USD'});
+			return;
         };
 
-        const confirmDeleteSelected = () => {
-            deleteProductsDialog.value = true;
+        //abre el modal para eliminar varios items.
+        const confirmDeleteSelected = (value) => {
+            deleteDatasDialog.value = value;
         };
 
         //abre el modal para editar.
         const setModal = (open, newReg, pushValue) => {
             if (newReg)
-                product.value = {};
+                dataOnly.value = {};
             if (!open && pushValue.id !== undefined && pushValue.id !== "" && newReg)
-                products.value.push(pushValue);
-            productDialog.value = open;
+                dataModel.value.push(pushValue);
+            dataDialog.value = open;
         }
 
+        //Abre el menu en la tabla
         const toggleMenuGrid = (event, data) => {
             menu.value[data.id].toggle(event);
-            product.value = data;
+            dataOnly.value = data;
         };
 
+        //Exporta a csv
         const exportCSV = () => {
             dt.value.exportCSV();
         };
 
-        const deleteSelectedProducts = () => {
+        //elimina todos items seleccionados
+        const deleteSelectedDatas = () => {
             loading.value = true;
-            const newModel = products.value.filter(val => selectedProducts.value.includes(val));
+            const newModel = dataModel.value.filter(val => selectedDatas.value.includes(val));
             let Ids = "";
             newModel.forEach(v => Ids += v.id + "," );
             Ids = Ids.slice(0, -1);
-            wService.value.deleteProduct(Ids).then(() => {
-                products.value = products.value.filter(val => !selectedProducts.value.includes(val));
-                deleteProductsDialog.value = false;
-                selectedProducts.value = null;
+            wsProp[props.methodDelete](Ids).then(() => {
+                dataModel.value = dataModel.value.filter(val => !selectedDatas.value.includes(val));
+                deleteDatasDialog.value = false;
+                selectedDatas.value = null;
                 loading.value = false;
             }).catch(() => {
                 toast.add({severity: 'warn', summary: '¡Atención!', detail:'No se logro eliminar los items seleccionados', life: 3500});
                 loading.value = false;
-                deleteProductsDialog.value = false;
+                deleteDatasDialog.value = false;
             });
         };
 
         //elimina o duplica por el menú de la grilla
-        const deleteOrDuplicateProduct = () => {
+        const deleteAndDuplicateData = () => {
             loading.value = true;
             if (duplicate.value) {
                 duplicate.value = false;
-                let dataDeepClone = JSON.parse(JSON.stringify(product.value));
+                let dataDeepClone = JSON.parse(JSON.stringify(dataOnly.value));
                 dataDeepClone.id = "";
                 const toSave = JSON.stringify(dataDeepClone);
-                wService.value.postArticulo(toSave, "").then((res) => {
-                    products.value.push(res.value);
+                wsProp[props.methodPost](toSave, "").then((res) => {
+                    dataModel.value.push(res.value);
                     loading.value = false;
-                    deleteProductDialog.value = false;
+                    deleteDataDialog.value = false;
                 }).catch(() => {
                     toast.add({severity: 'warn', summary: '¡Atención!', detail:'No se logro duplicar', life: 3000});
                     loading.value = false;
-                    deleteProductDialog.value = false;
+                    deleteDataDialog.value = false;
                 });
             }
             else {
-                wService.value.deleteProduct(product.value.id).then(() => {
-                    const indexDelete = products.value.findIndex(v => v.id === product.value.id);
-                    products.value.splice(indexDelete, 1);
-                    deleteProductDialog.value = false;
+                wsProp[props.methodDelete](dataOnly.value.id).then(() => {
+                    const indexDelete = dataModel.value.findIndex(v => v.id === dataOnly.value.id);
+                    dataModel.value.splice(indexDelete, 1);
+                    deleteDataDialog.value = false;
                     loading.value = false;
-                }).catch((ex) => {
+                }).catch(() => {
                     toast.add({severity: 'warn', summary: '¡Atención!', detail:'No se logro eliminar', life: 3000});
                     loading.value = false;
-                    deleteProductDialog.value = false;
-                    console.log("Error al grabar: ", ex);
+                    deleteDataDialog.value = false;
                 });
             }
         }
 
         return {
-            loading, duplicate, columnsData, menu, dt, products,
-            productDialog, deleteProductDialog, deleteProductsDialog,
-            product, selectedProducts, filters, itemsMenu,
-
-            functionRefs, highlightMatches, formatCurrency, confirmDeleteSelected, 
-            setModal, toggleMenuGrid, exportCSV, deleteSelectedProducts, deleteOrDuplicateProduct,
+            refWs, postMethod, wsProp, titulo, duplicate, loading, menu, dt, dataModel, columnsData, 
+            fieldsEdit, dataDialog, deleteDataDialog, deleteDatasDialog, dataOnly, selectedDatas, 
+            filters, itemsMenu, 
+            
+            functionRefs, highlightMatches, formatCurrency, confirmDeleteSelected, setModal, 
+            toggleMenuGrid, exportCSV, deleteSelectedDatas, deleteAndDuplicateData,
         };
     },
 };

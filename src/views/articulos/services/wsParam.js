@@ -15,7 +15,34 @@ export default class WService {
         })
     }
 
-    getBrand() {
+    postCategorias(data, id) {
+        var config = {
+            method: id !== '' ? 'put' : 'post',
+            url: 'category/',
+            headers: { 
+                'Content-Type': 'application/json'
+              },
+            data : data
+        };
+        const promise = axios(config);
+        return promise.then((response) => {
+            return response.data;
+        })
+    }
+
+    deleteCategorias(id) {
+        var config = {
+            method: 'delete',
+            url: 'category/' + id,
+            headers: { }
+        };
+        const promise = axios(config);
+        return promise.then((response) => {
+            return response.data;
+        })
+    }
+
+    getMarcas() {
         var config = {
             method: 'get',
             url: 'brand/',
@@ -28,20 +55,34 @@ export default class WService {
         })
     }
 
-    getProveedor() {
+    postMarcas(data, id) {
         var config = {
-            method: 'get',
-            url: 'proveedor/',
-            headers: { }
+            method: id !== '' ? 'put' : 'post',
+            url: 'brand/',
+            headers: { 
+                'Content-Type': 'application/json'
+              },
+            data : data
         };
-          
         const promise = axios(config);
         return promise.then((response) => {
             return response.data;
         })
     }
 
-    getMoneda() {
+    deleteMarcas(id) {
+        var config = {
+            method: 'delete',
+            url: 'brand/' + id,
+            headers: { }
+        };
+        const promise = axios(config);
+        return promise.then((response) => {
+            return response.data;
+        })
+    }
+
+    getMonedas() {
         var config = {
             method: 'get',
             url: 'moneda/',
@@ -54,65 +95,26 @@ export default class WService {
         })
     }
 
-    getTaxes() {
-        var config = {
-            method: 'get',
-            url: 'taxes/',
-            headers: { }
-        };
-          
-        const promise = axios(config);
-        return promise.then((response) => {
-            return response.data;
-        })
-    }
-
-    getPerformance() {
-        var config = {
-            method: 'get',
-            url: 'performance/',
-            headers: { }
-        };
-          
-        const promise = axios(config);
-        return promise.then((response) => {
-            return response.data;
-        })
-    }
-
-    getProducts() {
-        var config = {
-            method: 'get',
-            url: 'product/',
-            headers: { }
-        };
-          
-        const promise = axios(config);
-        return promise.then((response) => {
-            return response.data;
-        })
-    }
-
-    deleteProduct(id) {
-        var config = {
-            method: 'delete',
-            url: 'product/' + id,
-            headers: { }
-        };
-        const promise = axios(config);
-        return promise.then((response) => {
-            return response.data;
-        })
-    }
-
-    postArticulo(data, id) {
+    postMonedas(data, id) {
         var config = {
             method: id !== '' ? 'put' : 'post',
-            url: 'product/',
+            url: 'moneda/',
             headers: { 
                 'Content-Type': 'application/json'
               },
             data : data
+        };
+        const promise = axios(config);
+        return promise.then((response) => {
+            return response.data;
+        })
+    }
+
+    deleteMonedas(id) {
+        var config = {
+            method: 'delete',
+            url: 'moneda/' + id,
+            headers: { }
         };
         const promise = axios(config);
         return promise.then((response) => {
