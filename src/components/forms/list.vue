@@ -37,6 +37,8 @@
                             <i v-if="slotProp.data[col.field]" class="pi pi-check"></i>
                             <i v-else class="pi pi-times"></i>
                         </span>
+                        <span v-else-if="col.type == 'date'" v-html="formatDate(slotProp.data[col.field], col.format, col.field)">
+                        </span>
                         <div v-else class="text-sm font-medium text-gray-900" v-html="highlightMatches(slotProp.data[col.field])">
                         </div>
                     </template>
@@ -47,6 +49,9 @@
                         <Menu :id="'overlay_submenu_'  + slotProps.data.id" :ref="el => functionRefs(el, slotProps.data.id)" :model="itemsMenu" :popup="true" />
                     </template>
                 </Column>
+                <template #paginatorstart>
+                    <Button type="button" icon="pi pi-refresh" class="p-button-text" @click="intialLoad" />
+                </template>
             </DataTable>
         </div>
 
@@ -75,7 +80,7 @@
         </Dialog>
 
         <Dialog :header="titulo" v-model:visible="dataDialog" :breakpoints="{'960px': '75vw'}" :style="{width: '50vw'}" :maximizable="true" :modal="true">
-            <EditList @closeModal="setModal" :info="dataOnly" :fieldsEd="fieldsEdit" :WService="refWs" :postMethod="postMethod" />
+            <EditList @closeModal="setModal" :info="dataOnly" :fieldsEd="fieldsEdit" :WService="refWs" :nameMethod="methodName" />
         </Dialog>
 
 	</div>
@@ -84,6 +89,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { FilterMatchMode } from 'primevue/api';
+import moment from 'moment';
 
 import DataTable from 'primevue/datatable';
 import Toolbar from 'primevue/toolbar';
@@ -99,7 +105,7 @@ import EditList from './edit'
 export default {
     components: {
         DataTable, Toolbar, Column, Dialog, Button, Menu, InputText,
-        Toast, EditList
+        Toast, EditList,
     },
     props: {
         title: {
@@ -114,15 +120,7 @@ export default {
             type: Function,
             required: true
         },
-        methodGet: {
-            type: String,
-            required: true
-        },
-        methodPost: {
-            type: String,
-            required: true
-        },
-        methodDelete: {
+        nameMethod: {
             type: String,
             required: true
         },
@@ -133,17 +131,12 @@ export default {
     setup(props) {
         onMounted(() => {
             //trae datos del formulario.
-            wsProp[props.methodGet]().then(data => {
-                dataModel.value = data
-                loading.value = false;
-            }).catch(ex => {
-                loading.value = false;
-                console.log("Error Mounted: ", ex);
-            });
+            intialLoad();
         })
+        const forstrDate = "DD/MM/YYYY";
         const toast = useToast();
         const refWs = ref(props.wServices);
-        const postMethod = ref(props.methodPost);
+        const methodName = ref(props.nameMethod);
         const wsProp = new props.wServices();
         const titulo = ref(props.title); //titulo de la vista.
         const duplicate = ref(false); //indica si se va a duplicar item de la grilla.
@@ -196,6 +189,17 @@ export default {
             },
         ]);
 
+        const intialLoad = () => {
+            loading.value = true;
+            wsProp.getMethod(props.nameMethod).then(data => {
+                dataModel.value = data
+                loading.value = false;
+            }).catch(ex => {
+                loading.value = false;
+                console.log("Error Inital: ", ex);
+            });
+        }
+
         const functionRefs = (el, id) => {
             menu.value[id] = el;
         }
@@ -210,7 +214,16 @@ export default {
             return text.replace(re, matchedText => `<span class="text-red-400">${matchedText}</span>`);
         }
 
-         const formatCurrency = (value) => {
+        const formatDate = (value, format) => {
+            if (value) {
+                if (!format)
+                    format = forstrDate;
+                return moment(value).format(format);
+            }
+            return;
+        };
+
+         const formatCurrency = value => {
             if(value)
 				return value.toLocaleString('en-US', {style: 'currency', currency: 'USD'});
 			return;
@@ -233,6 +246,10 @@ export default {
         //Abre el menu en la tabla
         const toggleMenuGrid = (event, data) => {
             menu.value[data.id].toggle(event);
+            for (const property in data) {
+                if (moment(data[property]).isValid())
+                    data[property] = moment(data[property]).format(forstrDate);
+            }
             dataOnly.value = data;
         };
 
@@ -248,7 +265,7 @@ export default {
             let Ids = "";
             newModel.forEach(v => Ids += v.id + "," );
             Ids = Ids.slice(0, -1);
-            wsProp[props.methodDelete](Ids).then(() => {
+            wsProp.deleteMethod(props.nameMethod, Ids).then(() => {
                 dataModel.value = dataModel.value.filter(val => !selectedDatas.value.includes(val));
                 deleteDatasDialog.value = false;
                 selectedDatas.value = null;
@@ -268,7 +285,7 @@ export default {
                 let dataDeepClone = JSON.parse(JSON.stringify(dataOnly.value));
                 dataDeepClone.id = "";
                 const toSave = JSON.stringify(dataDeepClone);
-                wsProp[props.methodPost](toSave, "").then((res) => {
+                wsProp.postMethod(props.nameMethod, toSave, "").then((res) => {
                     dataModel.value.push(res.value);
                     loading.value = false;
                     deleteDataDialog.value = false;
@@ -279,7 +296,7 @@ export default {
                 });
             }
             else {
-                wsProp[props.methodDelete](dataOnly.value.id).then(() => {
+                wsProp.deleteMethod(props.nameMethod, dataOnly.value.id).then(() => {
                     const indexDelete = dataModel.value.findIndex(v => v.id === dataOnly.value.id);
                     dataModel.value.splice(indexDelete, 1);
                     deleteDataDialog.value = false;
@@ -293,11 +310,11 @@ export default {
         }
 
         return {
-            refWs, postMethod, wsProp, titulo, duplicate, loading, menu, dt, dataModel, columnsData, 
+            refWs, methodName, wsProp, titulo, duplicate, loading, menu, dt, dataModel, columnsData, 
             fieldsEdit, dataDialog, deleteDataDialog, deleteDatasDialog, dataOnly, selectedDatas, 
             filters, itemsMenu, 
             
-            functionRefs, highlightMatches, formatCurrency, confirmDeleteSelected, setModal, 
+            intialLoad, functionRefs, highlightMatches, formatDate, formatCurrency, confirmDeleteSelected, setModal, 
             toggleMenuGrid, exportCSV, deleteSelectedDatas, deleteAndDuplicateData,
         };
     },

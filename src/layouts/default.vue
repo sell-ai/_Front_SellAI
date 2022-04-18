@@ -171,6 +171,22 @@ export default {
             to: '/articulos',
           },
           {
+            label: 'Stock',
+            icon: 'pi pi-fw pi-box',
+            items: [
+              { 
+                label: 'Movimientos',
+                icon: 'pi pi-fw pi-sync',
+                to: '/movimientos'
+              },
+              { 
+                label: 'Situaciones',
+                icon: 'pi pi-fw pi-sitemap',
+                to: '/situaciones'
+              },
+            ]
+          },
+          {
             label: 'Parametros',
             icon: 'pi pi-fw pi-cog',
             items: [
@@ -192,7 +208,7 @@ export default {
               { 
                 label: 'Proveedores',
                 icon: 'pi pi-fw pi-server',
-                to: '/proveedores'
+                to: '/proveedor'
               }
             ]
           },

@@ -170,6 +170,7 @@ export default {
       axios(config).then(function (response) {
         console.log(JSON.stringify(response.data));
         Cookies.set('uuid', userOrEmail.value);
+        Cookies.set('user', response.data.user);
         Cookies.set('token', response.data.token);
         router.push({ name: 'Home' });
       })

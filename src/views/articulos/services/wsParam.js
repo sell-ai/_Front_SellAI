@@ -1,12 +1,15 @@
 import axios from 'axios';
+import Cookies from 'js-cookie'
+const keyT = btoa(Cookies.get('user') + ':' + Cookies.get('token'));
+const basicAuth = 'Basic ' + keyT;
 
 export default class WService {
-    
-    getCategorias() {
+
+    getMethod(url) {
         var config = {
             method: 'get',
-            url: 'category/',
-            headers: { }
+            url: url,
+            headers: { 'Authorization': basicAuth }
         };
           
         const promise = axios(config);
@@ -15,11 +18,12 @@ export default class WService {
         })
     }
 
-    postCategorias(data, id) {
+    postMethod(url, data, id) {
         var config = {
             method: id !== '' ? 'put' : 'post',
-            url: 'category/',
+            url: url,
             headers: { 
+                'Authorization': basicAuth,
                 'Content-Type': 'application/json'
               },
             data : data
@@ -30,91 +34,11 @@ export default class WService {
         })
     }
 
-    deleteCategorias(id) {
+    deleteMethod(url, id) {
         var config = {
             method: 'delete',
-            url: 'category/' + id,
-            headers: { }
-        };
-        const promise = axios(config);
-        return promise.then((response) => {
-            return response.data;
-        })
-    }
-
-    getMarcas() {
-        var config = {
-            method: 'get',
-            url: 'brand/',
-            headers: { }
-        };
-          
-        const promise = axios(config);
-        return promise.then((response) => {
-            return response.data;
-        })
-    }
-
-    postMarcas(data, id) {
-        var config = {
-            method: id !== '' ? 'put' : 'post',
-            url: 'brand/',
-            headers: { 
-                'Content-Type': 'application/json'
-              },
-            data : data
-        };
-        const promise = axios(config);
-        return promise.then((response) => {
-            return response.data;
-        })
-    }
-
-    deleteMarcas(id) {
-        var config = {
-            method: 'delete',
-            url: 'brand/' + id,
-            headers: { }
-        };
-        const promise = axios(config);
-        return promise.then((response) => {
-            return response.data;
-        })
-    }
-
-    getMonedas() {
-        var config = {
-            method: 'get',
-            url: 'moneda/',
-            headers: { }
-        };
-          
-        const promise = axios(config);
-        return promise.then((response) => {
-            return response.data;
-        })
-    }
-
-    postMonedas(data, id) {
-        var config = {
-            method: id !== '' ? 'put' : 'post',
-            url: 'moneda/',
-            headers: { 
-                'Content-Type': 'application/json'
-              },
-            data : data
-        };
-        const promise = axios(config);
-        return promise.then((response) => {
-            return response.data;
-        })
-    }
-
-    deleteMonedas(id) {
-        var config = {
-            method: 'delete',
-            url: 'moneda/' + id,
-            headers: { }
+            url: url + id,
+            headers: { 'Authorization': basicAuth }
         };
         const promise = axios(config);
         return promise.then((response) => {

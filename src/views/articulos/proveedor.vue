@@ -15,17 +15,19 @@
         },
         setup(){
             const wService = ref(WService);
-            const titulo = ref('Categorias');
-            const methodName = ref('category/');
+            const titulo = ref('Proveedor');
+            const methodName = ref('proveedor/');
             const columnas = ref([
-                {field: 'nombre', header: 'Nombre', sort: true, export: false, style: '', focus: true },
-                {field: 'descripcion', header: 'Descripcion', sort: true, export: false, style: '' },
+                {field: 'nombre', header: 'Nombre', sort: true, export: true, style: '', focus: true },
+                {field: 'descripcion', header: 'Descripción', sort: true, export: false, style: '' },
+                {field: 'cuit', header: 'CUIT', sort: true, export: false, style: '' },
                 {field: 'activo', header: 'Activo', sort: true, export: true, style: '', type: 'bool' },
             ]);
             const campoEditar = ref([
-                {name: 'nombre', label: 'Nombre', type: 'text', required: true},
-                {name: 'descripcion', label: 'Descripcion', type: 'area'},
-                {name: 'activo', label: 'Activo', type: 'bool'},
+                { name: 'nombre', label: 'Nombre', type: 'text', required: true, focus: true},
+                { name: 'descripcion', label: 'Descripción', type: 'area'},
+                { name: 'cuit', label: 'CUIT', type: 'mask', mask: "99-99.999.999-9"},
+                { name: 'activo', label: 'Activo', type: 'bool'},
             ]);
 
             return {

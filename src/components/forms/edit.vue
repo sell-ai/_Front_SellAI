@@ -16,8 +16,12 @@
             {{ field.label }} <span v-if="field.required" class="text-xs text-red-500">*</span>
           </label>
           <InputText v-if="field.type === 'text' && field.focus" :name="field.name" type="text" v-model="data.info[field.name]" class="block mt-1 w-full" v-focus />
-          <InputText v-else-if="field.type === 'text'" :name="field.name" type="text" v-model="data.info[field.name]" class="block mt-1 w-full" v-focus />
-          <Textarea v-else-if="field.type === 'area'" :name="field.name" v-model="data.info[field.name]" rows="5" cols="30" class="block mt-1 w-full" />
+          <InputText v-else-if="field.type === 'text'" :name="field.name" type="text" v-model="data.info[field.name]" class="block mt-1 w-full" />
+          <InputNumber v-else-if="field.type === 'currency'" :name="field.name" v-model="data.info[field.name]" mode="currency" currency="USD" locale="en-US" class="mt-1 w-full" />
+          <Dropdown v-else-if="field.type === 'select'" :name="field.name" v-model="data.info[field.name]" :options="field.select.options" :optionLabel="field.select.label" :optionValue="field.select.value" class="mt-1 w-full" />
+          <Calendar v-else-if="field.type === 'date'" :name="field.name" v-model="data.info[field.name]" :showIcon="true" dateFormat="dd/mm/yy" class="mt-1 w-full" />
+          <Textarea v-else-if="field.type === 'area'" :name="field.name" v-model="data.info[field.name]" rows="5" cols="30" class="mt-1 w-full" />
+          <InputMask v-else-if="field.type === 'mask'" :mask="field.mask" v-model="data.info[field.name]" :placeholder="field.mask" class="mt-1 w-full" />
           <InputSwitch v-else-if="field.type === 'bool'" :name="field.name" v-model="data.info[field.name]" class="block mt-1" />
         </div>
       </div>
@@ -42,27 +46,27 @@
   import { object, string } from "yup";
 
   import InputText from 'primevue/inputtext';
+  import InputNumber from 'primevue/inputnumber';
   import Textarea from 'primevue/textarea';
   import InputSwitch from 'primevue/inputswitch';
+  import Calendar from 'primevue/calendar';
+  import Dropdown from 'primevue/dropdown';
+  import InputMask from 'primevue/inputmask';
   import Toast from 'primevue/toast';
   import { useToast } from "primevue/usetoast";
   import Skeleton from 'primevue/skeleton';
-
+  
   export default {
     props: {
       info: Object,
       title: String,
       fieldsEd: Array,
       WService: Function,
-      postMethod: String
+      nameMethod: String
     },
     emits: ['closeModal'],
     components: {
-      InputText,
-      Textarea,
-      InputSwitch,
-      Toast,
-      Skeleton,
+      InputText, InputNumber, Textarea, InputSwitch, Calendar, Dropdown, InputMask, Toast, Skeleton
     },
     setup(props, { emit }) {
       onMounted(() => {
@@ -88,10 +92,14 @@
         switch (obj.type) {
           case "text":
           case "area":
+          case "date":
             data.info[obj.name] = "";
             break;
           case "bool":
             data.info[obj.name] = true;
+            break; 
+          case "select":
+            data.info[obj.name] = [];
             break;
           default:
             data.info[obj.name] = "";
@@ -114,7 +122,7 @@
         loading.value = true;
         validateSchema.validate(data.info, { abortEarly: false }).then(() => {
           const toSave = JSON.stringify(data.info);
-          wsProp[props.postMethod](toSave, data.info.id).then((res) => {
+          wsProp.postMethod(props.nameMethod, toSave, data.info.id).then((res) => {
             loading.value = false;
             closeModal(res.value);
           }).catch(error => {

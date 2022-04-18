@@ -43,6 +43,16 @@
                   <label for="categoria" class="block text-sm font-medium text-gray-700">Categoria <span class="text-xs text-red-500">*</span></label>
                   <AutoComplete name="categoria" v-model="data.art.categoria" :suggestions="data.filteredCategorias" @complete="searchCategoria($event)" :dropdown="true" field="nombre" forceSelection
                     class="mt-1 w-full rounded-md">
+                    <template #item="slotProps">
+                      <div class="flex flex-row">
+                          <span :class="{'bg-red-100': !slotProps.item.activo, 'text-red-800': !slotProps.item.activo, 'bg-green-100': slotProps.item.activo,
+                                  'text-green-800': slotProps.item.activo}" class="text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
+                              <i v-if="slotProps.item.activo" class="pi pi-check"></i>
+                              <i v-else class="pi pi-times"></i>
+                          </span>
+                          <div class="ml-2">{{slotProps.item.nombre}}</div>
+                      </div>
+                  </template>
                   </AutoComplete>
                   <InlineMessage v-if="!!data.errors.categoria">{{ data.errors.categoria }}</InlineMessage>
                 </div>
@@ -53,6 +63,16 @@
                   <label for="marca" class="block text-sm font-medium text-gray-700">Marca <span class="text-xs text-red-500">*</span></label>
                   <AutoComplete name="marca" v-model="data.art.marca" :suggestions="data.filteredBrand" @complete="searchBrand($event)" :dropdown="true" field="nombre" forceSelection
                     class="mt-1 w-full rounded-md">
+                    <template #item="slotProps">
+                      <div class="flex flex-row">
+                          <span :class="{'bg-red-100': !slotProps.item.activo, 'text-red-800': !slotProps.item.activo, 'bg-green-100': slotProps.item.activo,
+                                  'text-green-800': slotProps.item.activo}" class="text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
+                              <i v-if="slotProps.item.activo" class="pi pi-check"></i>
+                              <i v-else class="pi pi-times"></i>
+                          </span>
+                          <div class="ml-2">{{slotProps.item.nombre}}</div>
+                      </div>
+                    </template>
                   </AutoComplete>
                   <InlineMessage v-if="!!data.errors.marca">{{ data.errors.marca }}</InlineMessage>
                 </div>
@@ -93,6 +113,16 @@
                   <label for="proveedor" class="block text-sm font-medium text-gray-700">Proveedor <span class="text-xs text-red-500">*</span></label>
                   <AutoComplete name="proveedor" v-model="data.art.proveedor" :suggestions="data.filteredProv" @complete="searchProveedor($event)" :dropdown="true" field="nombre" forceSelection
                     class="mt-1 w-full rounded-md">
+                    <template #item="slotProps">
+                      <div class="flex flex-row">
+                          <span :class="{'bg-red-100': !slotProps.item.activo, 'text-red-800': !slotProps.item.activo, 'bg-green-100': slotProps.item.activo,
+                                  'text-green-800': slotProps.item.activo}" class="text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
+                              <i v-if="slotProps.item.activo" class="pi pi-check"></i>
+                              <i v-else class="pi pi-times"></i>
+                          </span>
+                          <div class="ml-2">{{slotProps.item.nombre}}</div>
+                      </div>
+                    </template> 
                   </AutoComplete>
                   <InlineMessage v-if="!!data.errors.proveedor">{{ data.errors.proveedor }}</InlineMessage>
                 </div>

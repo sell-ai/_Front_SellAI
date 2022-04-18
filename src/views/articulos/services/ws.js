@@ -1,4 +1,7 @@
 import axios from 'axios';
+import Cookies from 'js-cookie'
+const keyT = btoa(Cookies.get('user') + ':' + Cookies.get('token'));
+const basicAuth = 'Basic ' + keyT;
 
 export default class WService {
     
@@ -6,7 +9,7 @@ export default class WService {
         var config = {
             method: 'get',
             url: 'category/',
-            headers: { }
+            headers: { 'Authorization': basicAuth }
         };
           
         const promise = axios(config);
@@ -45,7 +48,7 @@ export default class WService {
         var config = {
             method: 'get',
             url: 'moneda/',
-            headers: { }
+            headers: { 'Authorization': basicAuth }
         };
           
         const promise = axios(config);

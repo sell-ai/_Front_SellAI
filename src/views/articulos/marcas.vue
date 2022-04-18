@@ -1,6 +1,5 @@
 <template>
-    <Listado :title="titulo" :columns="columnas" :wServices="wService" :editFields="campoEditar"
-        :methodGet="getMethod" :methodPost="postMethod" :methodDelete="deleteMethod">
+    <Listado :title="titulo" :columns="columnas" :wServices="wService" :editFields="campoEditar" :nameMethod="methodName">
     </Listado>
 </template>
 
@@ -17,9 +16,7 @@
         setup(){
             const wService = ref(WService);
             const titulo = ref('Marca');
-            const getMethod = ref('getMarcas');
-            const postMethod = ref('postMarcas');
-            const deleteMethod = ref('deleteMarcas');
+            const methodName = ref('brand/');
             const columnas = ref([
                 {field: 'nombre', header: 'Nombre', sort: true, export: true, style: '', focus: true },
                 {field: 'descripcion', header: 'Descripcion', sort: true, export: true, style: '' },
@@ -32,7 +29,7 @@
             ]);
 
             return {
-                wService, titulo, getMethod, postMethod, deleteMethod, columnas, campoEditar
+                wService, titulo, methodName, columnas, campoEditar
             }
         }
     }

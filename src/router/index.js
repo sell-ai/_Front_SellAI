@@ -8,6 +8,7 @@ import ListProduct from '../views/articulos/list.vue';
 import ListCategory from '../views/articulos/categorias.vue';
 import ListBrand from '../views/articulos/marcas.vue';
 import ListMoneda from '../views/articulos/monedas.vue';
+import ListProveedor from '../views/articulos/proveedor.vue';
 
 import Cookies from 'js-cookie'
 
@@ -72,6 +73,12 @@ const routes = [
         path: '/moneda',
         name: 'Moneda',
         component: ListMoneda,
+        meta,
+      },
+      {
+        path: '/proveedor',
+        name: 'Proveedor',
+        component: ListProveedor,
         meta,
       },
     ]

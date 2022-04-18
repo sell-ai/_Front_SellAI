@@ -1,6 +1,5 @@
 <template>
-    <Listado :title="titulo" :columns="columnas" :wServices="wService" :editFields="campoEditar"
-        :methodGet="getMethod" :methodPost="postMethod" :methodDelete="deleteMethod">
+    <Listado :title="titulo" :columns="columnas" :wServices="wService" :editFields="campoEditar" :nameMethod="methodName">
     </Listado>
 </template>
 
@@ -17,22 +16,66 @@
         setup(){
             const wService = ref(WService);
             const titulo = ref('Monedas');
-            const getMethod = ref('getMonedas');
-            const postMethod = ref('postMonedas');
-            const deleteMethod = ref('deleteMonedas');
+            const methodName = ref('moneda/');
             const columnas = ref([
-                {field: 'nombre', header: 'Nombre', sort: true, export: false, style: '' },
-                {field: 'descripcion', header: 'Descripcion', sort: true, export: false, style: '' },
+                {field: 'nombre', header: 'Nombre', sort: true, export: true, style: '', focus: true },
+                {field: 'descripcion', header: 'Descripción', sort: true, export: false, style: '' },
+                {field: 'valor', header: 'Valor', sort: true, export: true, style: '' },
+                {field: 'codigo', header: 'Código', sort: true, export: true, style: '' },
+                {field: 'simbolo', header: 'Simbolo', sort: true, export: true, style: '' },
+                {field: 'lugar', header: 'Lugar', sort: true, export: true, style: '' },
+                {field: 'desde', header: 'Fecha', sort: true, export: true, style: '', type: 'date' },
+                {field: 'predeterminada', header: 'Pred.', sort: false, export: false, style: '' , type: 'bool' },
                 {field: 'activo', header: 'Activo', sort: true, export: true, style: '', type: 'bool' },
             ]);
             const campoEditar = ref([
-                {name: 'nombre', label: 'Nombre', type: 'text', required: true, focus: true},
-                {name: 'descripcion', label: 'Descripcion', type: 'area'},
+                { name: 'nombre', label: 'Nombre', type: 'text', required: true, focus: true},
+                { name: 'descripcion', label: 'Descripción', type: 'area'},
+                { name: 'valor', label: 'valor', type: 'currency'},
+                { name: 'codigo', label: 'Código', type: 'select', select: {
+                        options: [
+                            { value: 'ARG'},
+                            { value: 'USD'},
+                            { value: 'EUR'},
+                            { value: 'BRL'},
+                            { value: 'CLP'},
+                        ],
+                        label: 'value',
+                        value: 'value',
+                        default: 'ARG'
+                    }
+                },
+                { name: 'simbolo', label: 'Simbolo', type: 'select', select: {
+                        options: [
+                            { value: '$'},
+                            { value: '€'},
+                            { value: 'R$'},
+                        ],
+                        label: 'value',
+                        value: 'value',
+                        default: '$'
+                    }
+                },
+                {name: 'lugar', label: 'Local', type: 'select', select: {
+                        options: [
+                            { value: 'es-AR'},
+                            { value: 'en-US'},
+                            { value: 'en-IE'},
+                            { value: 'pt_BR'},
+                            { value: 'es_CL'},
+                        ],
+                        label: 'value',
+                        value: 'value',
+                        default: 'es-AR'
+                    }
+                },
+                {name: 'desde', label: 'Fecha', type: 'date'},
+                {name: 'predeterminada', label: 'Predeterminada', type: 'bool'},
                 {name: 'activo', label: 'Activo', type: 'bool'},
             ]);
 
             return {
-                wService, titulo, getMethod, postMethod, deleteMethod, columnas, campoEditar
+                wService, titulo, methodName, columnas, campoEditar
             }
         }
     }
