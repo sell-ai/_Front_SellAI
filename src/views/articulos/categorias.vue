@@ -7,7 +7,7 @@
     import { ref } from 'vue';
     
     import Listado from '@/components/forms/list.vue'
-    import WService from './services/wsParam';
+    import WService from '@/plugins/ws';
 
     export default {
         components: {
@@ -18,12 +18,12 @@
             const titulo = ref('Categorias');
             const methodName = ref('category/');
             const columnas = ref([
-                {field: 'nombre', header: 'Nombre', sort: true, export: false, style: '', focus: true },
+                {field: 'nombre', header: 'Nombre', sort: true, export: false, style: '' },
                 {field: 'descripcion', header: 'Descripcion', sort: true, export: false, style: '' },
                 {field: 'activo', header: 'Activo', sort: true, export: true, style: '', type: 'bool' },
             ]);
             const campoEditar = ref([
-                {name: 'nombre', label: 'Nombre', type: 'text', required: true},
+                {name: 'nombre', label: 'Nombre', type: 'text', required: true, focus: true},
                 {name: 'descripcion', label: 'Descripcion', type: 'area'},
                 {name: 'activo', label: 'Activo', type: 'bool'},
             ]);

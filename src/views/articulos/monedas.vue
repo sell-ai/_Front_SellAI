@@ -7,7 +7,7 @@
     import { ref } from 'vue';
     
     import Listado from '@/components/forms/list.vue'
-    import WService from './services/wsParam';
+    import WService from '@/plugins/ws';
 
     export default {
         components: {
@@ -19,7 +19,7 @@
             const methodName = ref('moneda/');
             const columnas = ref([
                 {field: 'nombre', header: 'Nombre', sort: true, export: true, style: '', focus: true },
-                {field: 'descripcion', header: 'Descripción', sort: true, export: false, style: '' },
+                {field: 'descripcion', header: 'Descripción', sort: true, export: true, style: '' },
                 {field: 'valor', header: 'Valor', sort: true, export: true, style: '' },
                 {field: 'codigo', header: 'Código', sort: true, export: true, style: '' },
                 {field: 'simbolo', header: 'Simbolo', sort: true, export: true, style: '' },

@@ -54,6 +54,9 @@
                         <Menu :id="'overlay_submenu_'  + slotProps.data.id" :ref="el => functionRefs(el, slotProps.data.id)" :model="itemsMenu" :popup="true" />
                     </template>
                 </Column>
+                <template #paginatorstart>
+                    <Button type="button" icon="pi pi-refresh" class="p-button-text" @click="intialLoad" />
+                </template>
             </DataTable>
         </div>
 
@@ -101,7 +104,7 @@ import InputText from 'primevue/inputtext';
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import EditProduct from './edit'
-import WService from './services/ws';
+import WService from '@/plugins/ws';
 
 export default {
     components: {
@@ -110,15 +113,9 @@ export default {
     },
     setup() {
         onMounted(() => {
-            loading.value = true;
-            wService.value.getProducts().then(data => {
-                products.value = data;
-                loading.value = false;
-            }).catch(ex => {
-                loading.value = false;
-                console.log("Error Mounted: ", ex);
-            });
+            intialLoad();
         })
+        const getProduct = "product/";
         const toast = useToast();
         const wService = ref(new WService());
         const loading = ref(false);
@@ -176,6 +173,17 @@ export default {
             },
         ]);
 
+        const intialLoad = () => {
+            loading.value = true;
+            wService.value.getMethod(getProduct).then(data => {
+                products.value = data;
+                loading.value = false;
+            }).catch(ex => {
+                loading.value = false;
+                console.log("Error Mounted: ", ex);
+            });
+        }
+
         const functionRefs = (el, id) => {
             menu.value[id] = el;
         }
@@ -224,7 +232,7 @@ export default {
             let Ids = "";
             newModel.forEach(v => Ids += v.id + "," );
             Ids = Ids.slice(0, -1);
-            wService.value.deleteProduct(Ids).then(() => {
+            wService.value.deleteMethod(getProduct, Ids).then(() => {
                 products.value = products.value.filter(val => !selectedProducts.value.includes(val));
                 deleteProductsDialog.value = false;
                 selectedProducts.value = null;
@@ -244,7 +252,7 @@ export default {
                 let dataDeepClone = JSON.parse(JSON.stringify(product.value));
                 dataDeepClone.id = "";
                 const toSave = JSON.stringify(dataDeepClone);
-                wService.value.postArticulo(toSave, "").then((res) => {
+                wService.value.postMethod(getProduct, toSave, "").then((res) => {
                     products.value.push(res.value);
                     loading.value = false;
                     deleteProductDialog.value = false;
@@ -255,7 +263,7 @@ export default {
                 });
             }
             else {
-                wService.value.deleteProduct(product.value.id).then(() => {
+                wService.value.deleteMethod(getProduct, product.value.id).then(() => {
                     const indexDelete = products.value.findIndex(v => v.id === product.value.id);
                     products.value.splice(indexDelete, 1);
                     deleteProductDialog.value = false;
@@ -274,7 +282,7 @@ export default {
             productDialog, deleteProductDialog, deleteProductsDialog,
             product, selectedProducts, filters, itemsMenu,
 
-            functionRefs, highlightMatches, formatCurrency, confirmDeleteSelected, 
+            intialLoad, functionRefs, highlightMatches, formatCurrency, confirmDeleteSelected, 
             setModal, toggleMenuGrid, exportCSV, deleteSelectedProducts, deleteOrDuplicateProduct,
         };
     },

@@ -1,14 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import Home from '../views/Home.vue';
-import ViewAdmin from '../views/admin/viewCreate.vue';
-import ViewDesign from '../views/admin/viewDesign.vue';
-import Example from '../views/Example.vue';
 import ListProduct from '../views/articulos/list.vue';
 import ListCategory from '../views/articulos/categorias.vue';
 import ListBrand from '../views/articulos/marcas.vue';
 import ListMoneda from '../views/articulos/monedas.vue';
-import ListProveedor from '../views/articulos/proveedor.vue';
+import ListSituaciones from '../views/stock/situaciones.vue';
+import ListMovimientos from '../views/stock/movimientos.vue';
 
 import Cookies from 'js-cookie'
 
@@ -31,24 +29,6 @@ const routes = [
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
         component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
-        meta,
-      },
-      {
-        path: '/view',
-        name: 'ViewAdmin',
-        component: ViewAdmin,
-        meta,
-      },
-      {
-        path: '/viewD',
-        name: 'ViewDesign',
-        component: ViewDesign,
-        meta,
-      },
-      {
-        path: '/example',
-        name: 'Example',
-        component: Example,
         meta,
       },
       {
@@ -76,9 +56,15 @@ const routes = [
         meta,
       },
       {
-        path: '/proveedor',
-        name: 'Proveedor',
-        component: ListProveedor,
+        path: '/situaciones',
+        name: 'Situaciones',
+        component: ListSituaciones,
+        meta,
+      },
+      {
+        path: '/movimientos',
+        name: 'Movimientos',
+        component: ListMovimientos,
         meta,
       },
     ]

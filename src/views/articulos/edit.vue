@@ -346,7 +346,7 @@
 <script>
   import { reactive, ref, onMounted, computed } from 'vue';
   import { InformationCircleIcon } from '@heroicons/vue/solid'
-  import WService from './services/ws';
+  import WService from '@/plugins/ws';
   import AutoComplete from 'primevue/autocomplete';
   import Chips from 'primevue/chips';
   import Dropdown from 'primevue/dropdown';
@@ -430,15 +430,15 @@
         });
 
         onMounted(() => {
-            wService.value.getMoneda().then(inf => {
+            wService.value.getMethod('moneda/').then(inf => {
               inf.forEach(j => {
                 data.monedas.push(j);
                 if (j.predeterminada)
                   moneda.value = j;
               })
             });
-            wService.value.getTaxes().then(inf => data.taxes = inf);
-            wService.value.getPerformance().then(inf => {
+            wService.value.getMethod('taxes/').then(inf => data.taxes = inf);
+            wService.value.getMethod('performance/').then(inf => {
               data.performance = inf.value;
               loading.value = false;
             });
@@ -476,7 +476,7 @@
               desde:moneda.value.desde
             }
             const toSave = JSON.stringify(data.art);
-            wService.value.postArticulo(toSave, data.art.id).then(res => {
+            wService.value.postMethod('product/', toSave, data.art.id).then(res => {
               load.value = false;
               closeModal(res.value);
             }).catch(error => {
@@ -506,7 +506,7 @@
         const searchCategoria = (event) => {
             setTimeout(() => {
                 if (data.categorias && data.categorias.length == 0) {
-                  wService.value.getCategorias().then(info => {
+                  wService.value.getMethod('category/').then(info => {
                     data.categorias = info;
                     filters(event.query, 'filteredCategorias', 'categorias');
                   });
@@ -521,7 +521,7 @@
         const searchBrand = (event) => {
             setTimeout(() => {
                 if (data.marcas && data.marcas.length == 0) {
-                  wService.value.getBrand().then(info => {
+                  wService.value.getMethod('brand/').then(info => {
                     data.marcas = info;
                     filters(event.query, 'filteredBrand', 'marcas');
                   });
@@ -536,7 +536,7 @@
         const searchProveedor = (event) => {
             setTimeout(() => {
                 if (data.proveedor && data.proveedor.length == 0) {
-                  wService.value.getProveedor().then(info => {
+                  wService.value.getMethod('proveedor/').then(info => {
                     data.proveedor = info;
                     filters(event.query, 'filteredProv', 'proveedor');
                   });

@@ -7,7 +7,7 @@
     import { ref } from 'vue';
     
     import Listado from '@/components/forms/list.vue'
-    import WService from './services/wsParam';
+    import WService from '@/plugins/ws';
 
     export default {
         components: {

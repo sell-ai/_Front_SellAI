@@ -205,11 +205,6 @@ export default {
                 icon: 'pi pi-fw pi-wallet',
                 to: '/moneda'
               },
-              { 
-                label: 'Proveedores',
-                icon: 'pi pi-fw pi-server',
-                to: '/proveedor'
-              }
             ]
           },
         ],
