@@ -8,15 +8,15 @@
           <template v-for="nav in navigation" :key="nav">
             <Disclosure as="div" class="mt-2" v-slot="{open}">
               <DisclosureButton
-                class="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-blue-900 rounded-lg hover:bg-blue-100 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75"
-                :class="{ 'bg-blue-100': nav.isActive || open }">
+                class="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-indigo-900 rounded-lg hover:bg-indigo-100 focus:outline-none focus-visible:ring focus-visible:ring-indigo-500 focus-visible:ring-opacity-75"
+                :class="{ 'bg-indigo-100': nav.isActive || open }">
                 <span aria-hidden="true">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="nav.d" />
                   </svg>
                 </span>
                 <span class="ml-2 text-sm">{{ nav.name }}</span>
-                <ChevronUpIcon :class="open ? '' : 'transform rotate-180'" class="w-5 h-5 text-blue-500" />
+                <ChevronUpIcon :class="open ? '' : 'transform rotate-180'" class="w-5 h-5 text-indigo-500" />
               </DisclosureButton>
               <DisclosurePanel class="mt-2 space-y-2 px-7" :aria-label="nav.name">
                 <PanelMenu :model="nav.items" class="block w-full">
@@ -50,7 +50,7 @@
           <nav aria-label="Secondary" class="hidden space-x-2 md:flex md:items-center">
             <div class="ml-4 flex items-center md:ml-6">
               <!-- Profile -->
-              <Button @click="openMenuUser" icon="pi pi-user" class="p-button-sm p-button-rounded p-button-info p-button-text" aria-haspopup="true" aria-controls="overlay_menu" />
+              <Button @click="openMenuUser" icon="pi pi-user" class="p-button-sm p-button-rounded p-button-text" aria-haspopup="true" aria-controls="overlay_menu" />
               <Menu id="overlay_menu" ref="menuUser" :model="itemsMenu" :popup="true" />
             </div>
           </nav>
@@ -59,15 +59,15 @@
         <DisclosurePanel class="md:hidden bg-gray-50 flex-1 h-full overflow-x-hidden overflow-y-auto">
           <div v-for="nav in navigation" :key="nav" class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Disclosure as="div" class="mt-2" v-slot="{open}">
-              <DisclosureButton class="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-blue-500 rounded-lg hover:bg-blue-100 focus:outline-none focus-visible:ring focus-visible:ring-blue-100 focus-visible:ring-opacity-75"
-                :class="{ 'bg-blue-100': nav.isActive || open }">
+              <DisclosureButton class="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-indigo-500 rounded-lg hover:bg-indigo-100 focus:outline-none focus-visible:ring focus-visible:ring-indigo-100 focus-visible:ring-opacity-75"
+                :class="{ 'bg-indigo-100': nav.isActive || open }">
                 <span aria-hidden="true">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="nav.d" />
                   </svg>
                 </span>
                 <span class="ml-2 text-sm">{{ nav.name }}</span>
-                <ChevronUpIcon :class="open ? '' : 'transform rotate-180'" class="w-5 h-5 text-blue-500" />
+                <ChevronUpIcon :class="open ? '' : 'transform rotate-180'" class="w-5 h-5 text-indigo-500" />
               </DisclosureButton>
               <DisclosurePanel class="mt-2 space-y-2 px-7" :aria-label="nav.name">
                 <PanelMenu :model="nav.items" class="block w-full">
@@ -105,7 +105,7 @@
         <div>AiMeet &copy; 2022</div>
         <div>
           Made by
-          <a href="https://github.com/leonardoillanez" target="_blank" class="text-blue-500 hover:underline"
+          <a href="https://github.com/leonardoillanez" target="_blank" class="text-indigo-500 hover:underline"
             >Leonardo Illanez</a
           >
         </div>

@@ -15,7 +15,7 @@
     padding-right: 0.75rem;
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
-    line-height: 1.25rem;
+    line-height: 2.25rem;
     border: 1px solid #d4d4d8;
     transition: none;
     appearance: none;
@@ -24,9 +24,13 @@
 .p-autocomplete {
     line-height: 0rem;
 }
+
 @media (max-width: 640px) {
     .p-inputtext {
         font-size: 0.875rem;
         line-height: 1.25rem;
+    }
+    .p-autocomplete {
+        line-height: 0rem;
     }
 }
