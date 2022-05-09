@@ -7,6 +7,8 @@ import ListBrand from '../views/articulos/marcas.vue';
 import ListMoneda from '../views/articulos/monedas.vue';
 import ListSituaciones from '../views/stock/situaciones.vue';
 import ListMovimientos from '../views/stock/movimientos.vue';
+import ListPagos from '../views/pagos/list.vue';
+import ListVentas from '../views/ventas/list.vue';
 
 import Cookies from 'js-cookie'
 
@@ -65,6 +67,18 @@ const routes = [
         path: '/movimientos',
         name: 'Movimientos',
         component: ListMovimientos,
+        meta,
+      },
+      {
+        path: '/formaspagos',
+        name: 'FormasPagos',
+        component: ListPagos,
+        meta,
+      },
+      {
+        path: '/ventas',
+        name: 'Ventas',
+        component: ListVentas,
         meta,
       },
     ]

@@ -24,6 +24,12 @@
 .p-autocomplete {
     line-height: 0rem;
 }
+
+.p-button.p-button-sm {
+    font-size: 0.775rem;
+    padding: 0.350rem 0.450rem;
+}
+
 @media (max-width: 640px) {
     .p-inputtext {
         font-size: 0.875rem;
