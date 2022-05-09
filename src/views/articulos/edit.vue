@@ -34,7 +34,7 @@
               <div class="grid grid-cols-3 gap-6">
                 <div class="col-span-6 sm:col-span-3">
                   <label for="nombre-name" class="block text-sm font-medium text-gray-700"> Nombre <span class="text-xs text-red-500">*</span></label>
-                  <input v-model="data.art.nombre" @blur="validate('nombre')" type="text" name="nombre-name" id="serie-name" autocomplete="nombre-name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+                  <InputText type="text" v-model="data.art.nombre" @blur="validate('nombre')" name="nombre-name" class="mt-1 w-full"/>
                   <InlineMessage v-if="!!data.errors.nombre">{{ data.errors.nombre }}</InlineMessage>
                 </div>
               </div>
@@ -81,29 +81,25 @@
               <div class="grid grid-cols-3 gap-6">
                 <div class="col-span-6 sm:col-span-3">
                   <label for="serie-name" class="block text-sm font-medium text-gray-700">Serie</label>
-                  <input v-model="data.art.serie" type="text" name="serie-name" id="serie-name" autocomplete="serie-name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+                  <InputText type="text" v-model="data.art.serie" name="serie-name" class="mt-1 w-full" />
                 </div>
               </div>
 
               <div class="grid grid-cols-6 gap-6">
-                <div class="col-span-6 sm:col-span-4">
+                <div class="col-span-6">
                   <label for="article-website" class="block text-sm font-medium text-gray-700"> Sitio Web </label>
-                  <div class="mt-1 flex rounded-md shadow-sm">
-                    <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> URL: </span>
-                    <input v-model="data.art.url" type="text" name="article-website" id="article-website" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300" placeholder="www.example.com" />
+                  <div class="p-inputgroup">
+                    <span class="p-inputgroup-addon">W</span>
+                    <InputText placeholder="Website" v-model="data.art.url" />
                   </div>
                 </div>
-                <div class="col-span-3 sm:col-span-2">
+                <div class="col-span-6 sm:col-span-4">
                   <label for="garantia" class="block text-sm font-medium text-gray-700"> Garantia </label>
-                  <div class="mt-1 relative rounded-md shadow-sm">
-                    <input v-model="data.art.garantia" type="text" name="garantia" id="garantia" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-md"  />
-                    <div class="absolute inset-y-0 right-0 flex items-center">
-                      <label for="tiempo" class="sr-only"> Tiempo </label>
-                      <select v-model="data.art.tipoGarantia" id="tiempo" name="tiempo" class="focus:ring-indigo-500 focus:border-indigo-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md">
-                        <option>Meses</option>
-                        <option>Días</option>
-                      </select>
-                    </div>
+                  <div class="p-inputgroup">
+                    <InputText placeholder="Tipo Garantia"/>
+                    <span class="p-inputgroup-addon">
+                        <Dropdown v-model="data.art.tipoGarantia" :options="data.timesGar" placeholder="Tiempo" name="tiempo" />
+                    </span>
                   </div>
                 </div>
               </div>
@@ -190,15 +186,15 @@
                   <div class="w-full text-gray-900 bg-white border border-gray-200 rounded-lg ">
                       <div class="sm:flex sm:items-center sm:justify-between w-full px-4 py-2 text-sm border-b border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
                           <div class="font-bold">Subtotal:</div>
-                          <div class="sm:flex"> $ {{subTotal}}</div>
+                          <div class="sm:flex"> $ {{ subTotal.toFixed(2) }}</div>
                       </div>
                       <div class="sm:flex sm:items-center sm:justify-between w-full px-4 py-2 text-sm border-b border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
                           <div class="font-bold">Impuestos:</div>
-                          <div class="sm:flex"> $ {{impuestos}}</div>
+                          <div class="sm:flex"> $ {{ impuestos.toFixed(2) }}</div>
                       </div>
                       <div class="sm:flex sm:items-center sm:justify-between w-full px-4 py-2 text-sm bg-indigo-100 border-b border-indigo-500 rounded-t-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
                           <div class="font-bold">TOTAL:</div>
-                          <div class="sm:flex"> $ {{subTotal + impuestos}}</div>
+                          <div class="sm:flex"> $ {{ (subTotal + impuestos).toFixed(2) }}</div>
                       </div>
                   </div>
                 </div>
@@ -228,25 +224,17 @@
             <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
               <div class="col-span-6 sm:col-span-3">
                   <label for="tipo-articulo" class="block text-sm font-medium text-gray-700">Tipo de Artículo</label>
-                  <select name="tipo-articulo" v-model="data.art.tipoArticulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    <option>Servicio</option>
-                    <option>Producto Simple</option>
-                    <option>Producto Compuesto</option>
-                  </select>
+                  <Dropdown v-model="data.art.tipoArticulo" :options="data.tipoArt" placeholder="Selecciones tipo de artículo" class="mt-1 w-full" />
               </div>
               <div class="col-span-6 sm:col-span-3">
-                  <div class="grid grid-cols-6 gap-2 flex">
+                  <div class="grid grid-cols-6 gap-2">
                     <div class="col-span-5 flex-grow inline-block">
                       <label for="tipo-articulo" class="block text-sm font-medium text-gray-700">Unidad</label>
-                      <select v-model="data.art.unidad.cadaUno" name="tipo-articulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        <option v-for="item in data.performance" :key="item.codigo" :value="item.codigo">{{ item.nombre }}</option>
-                      </select>
+                      <Dropdown v-model="data.art.unidad.cadaUno" :options="data.performance" optionLabel="nombre" optionValue="codigo" placeholder="Selecciones tipo de artículo" name="tipo-articulo" class="mt-1 w-full" />
                       <p class="mt-2 text-xs text-gray-500">{{rendimiento}}</p>
                     </div>
                     <div class="col-span-1 flex-none inline-block mt-8">
-                      <button @click="toggle" class="w-auto flex text-xs font-medium bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 rounded-full">
-                        ...
-                      </button>
+                      <Button @click="toggle" icon="pi pi-ellipsis-h" class="p-button-sm p-button-rounded p-button-info p-button-outlined"  />
                       <OverlayPanel ref="op" appendTo="body" :showCloseIcon="true" id="overlay_panel" style="width: 450px" :breakpoints="{'960px': '75vw'}">
                         <div class="flex p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-blue-200 dark:text-blue-800" role="alert">
                           <svg class="inline flex-shrink-0 mr-3 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
@@ -257,9 +245,7 @@
                         <div class="grid grid-cols-6 gap-2">
                           <div class="col-span-6">
                             <label for="compra-articulo" class="block text-sm font-medium text-gray-700">El artículo se compra en</label>
-                            <select v-model="data.art.unidad.buyin" name="compra-articulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                              <option v-for="item in data.performance" :key="item.codigo" :value="item.codigo">{{ item.nombre }}</option>
-                            </select>
+                            <Dropdown v-model="data.art.unidad.buyin" :options="data.performance" optionLabel="nombre" optionValue="codigo" placeholder="Se compra en" name="compra-articulo" class="mt-1 w-full" />
                           </div>
                           <div class="col-span-6">
                             <label for="rinde-articulo" class="block text-sm font-medium text-gray-700">Cada uno/a rinde</label>
@@ -267,9 +253,7 @@
                           </div>
                           <div class="col-span-6">
                             <label for="cada-articulo" class="block text-sm font-medium text-gray-700">c/u</label>
-                            <select v-model="data.art.unidad.cadaUno" name="cada-articulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                              <option v-for="item in data.performance" :key="item.codigo" :value="item.codigo">{{ item.nombre }}</option>
-                            </select>
+                            <Dropdown v-model="data.art.unidad.cadaUno" :options="data.performance" optionLabel="nombre" optionValue="codigo" placeholder="Rinde" name="cada-articulo" class="mt-1 w-full" />
                           </div>
                         </div>
                       </OverlayPanel>
@@ -280,13 +264,8 @@
 
               </div>
               <div class="col-span-6 sm:col-span-3">
-                  <label for="tipo-articulo" class="block text-sm font-medium text-gray-700">Seguimiento</label>
-                  <select v-model="data.art.seguimiento" name="tipo-articulo" autocomplete="tipo-articulo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    <option>Predeterminado</option>
-                    <option>Ninguno</option>
-                    <option>Por numero de serie</option>
-                    <option>Por varaciones</option>
-                  </select>
+                  <label for="segui-articulo" class="block text-sm font-medium text-gray-700">Seguimiento</label>
+                  <Dropdown v-model="data.art.seguimiento" :options="data.segui" name="segui-articulo" />
               </div>
 
               <div class="grid grid-cols-3 gap-6">
@@ -311,10 +290,16 @@
                               </div>
                               <p class="mr-2 text-base font-bold text-gray-800 dark:text-gray-100 mt-2 md:my-0">Stock</p>
                               <div class="h-1 w-1 bg-gray-300 dark:bg-gray-700 rounded-full mr-2 hidden xl:block"></div>
-                              <p class="text-sm lg:text-base dark:text-gray-400 text-gray-600 lg:pt-1 xl:pt-0 sm:mb-0 mb-2 text-center sm:text-left">{{data.stock}}</p>
+                              <p class="text-sm lg:text-base dark:text-gray-400 text-gray-600 lg:pt-1 xl:pt-0 sm:mb-0 mb-2 text-center sm:text-left">{{data.art.stock}}</p>
                           </div>
                           <div class="flex xl:items-center lg:items-center sm:justify-end justify-center pr-4">
-                              <button class="focus:outline-none focus:text-indigo-400 hover:text-indigo-400 text-sm mr-4 font-bold cursor-pointer text-indigo-700 dark:text-indigo-600">Detalle</button>
+                              <Button @click="showDetails" v-show="!newReg" label="Detalle" class="p-button-raised-sm p-button-info p-button-text" />
+                              <OverlayPanel ref="op2" appendTo="body" :showCloseIcon="true" id="overlay_panel2" style="width: 450px" :breakpoints="{'960px': '75vw'}">
+                                <DataTable :value="data.stockSituacion" responsiveLayout="scroll" showGridlines>
+                                  <Column field="nombre" header="Situación"></Column>
+                                  <Column field="stock" header="Stock"></Column>
+                                </DataTable>
+                              </OverlayPanel>
                           </div>
                       </div>
                   </div>
@@ -349,8 +334,10 @@
   import WService from '@/plugins/ws';
   import AutoComplete from 'primevue/autocomplete';
   import Chips from 'primevue/chips';
+  import Button from 'primevue/button';
   import Dropdown from 'primevue/dropdown';
   import InputNumber from 'primevue/inputnumber';
+  import InputText from 'primevue/inputtext';
   import MultiSelect from 'primevue/multiselect';
   import OverlayPanel from 'primevue/overlaypanel';
   import Divider from 'primevue/divider';
@@ -358,6 +345,8 @@
   import { useToast } from "primevue/usetoast";
   import InlineMessage from 'primevue/inlinemessage';
   import Skeleton from 'primevue/skeleton';
+  import DataTable from 'primevue/datatable';
+  import Column from 'primevue/column';
 
   import { object, string, array } from "yup";
     
@@ -367,17 +356,8 @@
     },
     emits: ['closeModal'],
     components: {
-      InformationCircleIcon,
-      AutoComplete,
-      Chips,
-      Dropdown,
-      InputNumber,
-      MultiSelect,
-      OverlayPanel,
-      Divider,
-      Toast,
-      InlineMessage,
-      Skeleton,
+      InformationCircleIcon, AutoComplete, Chips, Button, Dropdown, InputNumber, InputText, MultiSelect, OverlayPanel,
+      Divider, Toast, InlineMessage, Skeleton, DataTable, Column
     },
     setup(props, { emit }) {
         const toast = useToast();
@@ -386,6 +366,7 @@
         const loading = ref(true);
         const load = ref(false);
         const op = ref();
+        const op2 = ref();
         const moneda = ref();
         const data = reactive({
             art: {
@@ -426,6 +407,10 @@
             monedas: [],
             taxes: null,
             performance: null,
+            timesGar: ['Meses', 'Días'],
+            tipoArt: ['Servicio', 'Producto Simple', 'Producto Compuesto'],
+            segui: ['Predeterminado', 'Ninguno', 'Por numero de serie', 'Por varaciones'],
+            stockSituacion: null,
             errors: {}
         });
 
@@ -604,12 +589,21 @@
           emit("closeModal", false, newReg.value, newVal)
         }
 
+        const showDetails = (event) => {
+          op2.value.toggle(event);
+          wService.value.getMethod('product/' + data.art.id).then(inf => {
+            data.stockSituacion = inf.stockDeposito;
+          }).catch(() => {
+            toast.add({ severity: 'error', summary: 'Error!', detail: 'Error al mostrar los datos'})
+          });
+        };
+
         return {
-            loading, load, op, moneda, data, 
+            loading, load, op, op2, moneda, data, 
             
             validate, schemaSave, Save, searchCategoria, searchBrand, 
             searchProveedor, toggle, subTotal, impuestos, rendimiento, 
-            closeModal,
+            closeModal, showDetails,
         };
     },
     directives: {
