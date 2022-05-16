@@ -2,7 +2,7 @@
     <Listado :title="titulo" :columns="columnas" :wServices="wService" :editFields="campoEditar" :nameMethod="methodName" @showModal="showEdit">
     </Listado>
 
-    <Dialog :header="titulo" v-model:visible="showDialog" :breakpoints="{'960px': '75vw'}" :style="{width: '50vw'}" :maximizable="true" :modal="true">
+    <Dialog :header="titulo" v-model:visible="showDialog" :style="{width: '100vw'}" :maximizable="true" :modal="true">
         <EditList @closeModal="showEdit" />
     </Dialog>
 </template>

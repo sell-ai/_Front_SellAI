@@ -96,7 +96,7 @@
                 <div class="col-span-6 sm:col-span-4">
                   <label for="garantia" class="block text-sm font-medium text-gray-700"> Garantia </label>
                   <div class="p-inputgroup">
-                    <InputText placeholder="Tipo Garantia"/>
+                    <InputText v-model="data.art.garantia" placeholder="Tipo Garantia"/>
                     <span class="p-inputgroup-addon">
                         <Dropdown v-model="data.art.tipoGarantia" :options="data.timesGar" placeholder="Tiempo" name="tiempo" />
                     </span>
@@ -389,6 +389,7 @@
               stockMinimo: 0,
               stockMaximo: 0,
               stock: 0,
+              activo: true,
               tipoArticulo: 'Producto Simple',
               unidad: {
                 buyin: 1,
@@ -398,11 +399,8 @@
               seguimiento: 'Predeterminado',
               bucket: {}
             },
-            categorias: [],
             filteredCategorias: [],
-            marcas: [],
             filteredBrand: [],
-            proveedor: [],
             filteredProv: [],
             monedas: [],
             taxes: null,
@@ -455,6 +453,7 @@
           schemaSave.validate(data.art, { abortEarly: false }).then(() => {
             data.art.pvp = subTotal.value + impuestos.value; //suma el pvp
             data.art.moneda = {
+              id: moneda.value.id,
               nominal: moneda.value.valor,
               simbolo: moneda.value.simbolo,
               lugar: moneda.value.lugar,
@@ -489,60 +488,51 @@
 
         //Método del autocomplete
         const searchCategoria = (event) => {
-            setTimeout(() => {
-                if (data.categorias && data.categorias.length == 0) {
-                  wService.value.getMethod('category/').then(info => {
-                    data.categorias = info;
-                    filters(event.query, 'filteredCategorias', 'categorias');
-                  });
-                }
-                else {
-                  filters(event.query, 'filteredCategorias', 'categorias');
-                }
-            }, 250);
+          setTimeout(() => {
+            if (event.query.length > 0) {
+              wService.value.getMethod('category/filter/' + event.query).then(info => {
+                data.filteredCategorias = info;
+              });
+            }
+            else {
+              wService.value.getMethod('category/gettop/15').then(info => {
+                data.filteredCategorias = info;
+              });
+            }
+          }, 250);
         };
 
         //Método del autocomplete
         const searchBrand = (event) => {
-            setTimeout(() => {
-                if (data.marcas && data.marcas.length == 0) {
-                  wService.value.getMethod('brand/').then(info => {
-                    data.marcas = info;
-                    filters(event.query, 'filteredBrand', 'marcas');
-                  });
-                }
-                else {
-                  filters(event.query, 'filteredBrand', 'marcas');
-                }
-            }, 250);
+          setTimeout(() => {
+            if (event.query.length > 0) {
+              wService.value.getMethod('brand/filter/' + event.query).then(info => {
+                data.filteredBrand = info;
+              });
+            }
+            else {
+              wService.value.getMethod('brand/gettop/15').then(info => {
+                data.filteredBrand = info;
+              });
+            }
+          }, 250);
         };
 
         //Método del autocomplete
         const searchProveedor = (event) => {
-            setTimeout(() => {
-                if (data.proveedor && data.proveedor.length == 0) {
-                  wService.value.getMethod('proveedor/').then(info => {
-                    data.proveedor = info;
-                    filters(event.query, 'filteredProv', 'proveedor');
-                  });
-                }
-                else {
-                  filters(event.query, 'filteredProv', 'proveedor');
-                }
-            }, 250);
-        };
-
-        //Busca lo escrito del autocomplete
-        const filters = (value, fil, dat) => {
-          if (!value.trim().length) {
-                data[fil] = [...data[dat]];
+          setTimeout(() => {
+            if (event.query.length > 0) {
+              wService.value.getMethod('proveedor/filter/' + event.query).then(info => {
+                data.filteredProv = info;
+              });
             }
             else {
-                data[fil] = data[dat].filter((item) => {
-                    return item.nombre.toLowerCase().startsWith(value.toLowerCase());
-                });
+              wService.value.getMethod('proveedor/gettop/15').then(info => {
+                data.filteredProv = info;
+              });
             }
-        }
+          }, 250);
+        };
 
         //Para mostrar el overpanel
         const toggle = (event) => {
@@ -599,7 +589,7 @@
         };
 
         return {
-            loading, load, op, op2, moneda, data, 
+            loading, load, op, op2, moneda, data, newReg,
             
             validate, schemaSave, Save, searchCategoria, searchBrand, 
             searchProveedor, toggle, subTotal, impuestos, rendimiento, 

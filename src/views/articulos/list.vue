@@ -84,7 +84,7 @@
             </template>
         </Dialog>
 
-        <Dialog header="Artículo" v-model:visible="productDialog" :breakpoints="{'960px': '75vw'}" :style="{width: '50vw'}" :maximizable="true" :modal="true">
+        <Dialog header="Artículo" v-model:visible="productDialog" :breakpoints="{'960px': '100vw'}" :style="{width: '75vw'}" :maximizable="true" :modal="true">
             <EditProduct @closeModal="setModal" :info="product" />
         </Dialog>
 	</div>
@@ -127,6 +127,7 @@ export default {
             {field: 'categoria', object: 'nombre', header: 'Categoria', sort: true, export: true, style: 'min-width:10rem' },
             {field: 'pvp', header: 'Precio', sort: true, export: true, style: 'min-width:8rem', type: 'currency' },
             {field: 'stock', header: 'Stock', sort: true, export: true, style: 'min-width:12rem' },
+            {field: 'activo', header: 'Activo', sort: true, export: true, type: 'bool' },
         ]);
         const menu = ref([]); //referencia la menu de la grilla
         const dt = ref(); //referencia a la tabla.

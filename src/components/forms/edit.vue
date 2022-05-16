@@ -44,6 +44,7 @@
 <script>
   import { ref, reactive, onMounted } from 'vue';
   import { object, string } from "yup";
+  import moment from 'moment';
 
   import InputText from 'primevue/inputtext';
   import InputNumber from 'primevue/inputnumber';
@@ -72,7 +73,18 @@
       onMounted(() => {
         //verifico si es nuevo o editar
         if (props.info.id) { 
+          //Verifico los de fecha.
+          moment.locale('es');
+          const fieldsDates = props.fieldsEd.filter(f => f.type === 'date');
           data.info = props.info;
+          //Busco los campos que son fecha para poder editar con formato correcto.
+          for (const property in data.info) {
+            const date = data.info[property];
+            const siDate = fieldsDates.find(f => f.name === property);
+            if (siDate !== undefined) {
+              data.info[property] = new Date(date);
+            }
+          }
           newReg.value = false;
         }
         loading.value = false;
@@ -92,8 +104,10 @@
         switch (obj.type) {
           case "text":
           case "area":
-          case "date":
             data.info[obj.name] = "";
+            break;
+          case "date":
+            data.info[obj.name] = null;
             break;
           case "bool":
             data.info[obj.name] = true;

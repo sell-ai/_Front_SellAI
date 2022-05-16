@@ -211,6 +211,7 @@ export default {
             if (value) {
                 if (!format)
                     format = forstrDate;
+                moment.locale("es");
                 return moment(value).format(format);
             }
             return;
@@ -230,18 +231,6 @@ export default {
         //Abre el menu en la tabla
         const toggleMenuGrid = (event, data) => {
             menu.value[data.id].toggle(event);
-            const fieldsDates = fieldsEdit.value.filter(f => f.type === 'date');
-            //Busco los campos que son fecha para poder editar con formato correcto.
-            for (const property in data) {
-                const date = data[property];
-                const siDate = fieldsDates.find(f=>f.name === property);
-                if (siDate !== undefined) {
-                    const toDateFormat = moment(new Date(date)).format(forstrDate);
-                    if (moment(toDateFormat, forstrDate, true).isValid()) {
-                        data[property] = toDateFormat;
-                    }
-                }
-            }
             dataOnly.value = data;
         };
 

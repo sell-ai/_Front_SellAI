@@ -13,7 +13,7 @@
       <Panel header="Encabezado" :toggleable="true" class="w-full">
         <div class="grid grid-cols-6 gap-2">
           
-          <div class="col-span-3 sm:col-span-6">
+          <div class="col-span-6">
             <label for="cliente" class="block text-sm font-medium text-gray-700">Cliente</label>
             <AutoComplete v-model="data.comp.cliente" :suggestions="data.filteredCustomers" @complete="searchCustomers($event)" :dropdown="true" field="nombre" forceSelection class="mt-1 w-full rounded-md">
               <template #item="slotProps">
@@ -29,23 +29,17 @@
             <InlineMessage v-if="!!data.errors.cliente">{{ data.errors.cliente }}</InlineMessage>
           </div>
 
-          <div class="col-span-3 sm:col-span-6">
-            <label for="comprobante" class="block text-sm font-medium text-gray-700">N° Comprobante</label>
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon">
-                <Dropdown v-model="data.comp.tipoComprobante" :options="data.types" optionLabel="nombre" optionValue="codigo" />
-              </span>
-              <InputMask mask="99999999" v-model="data.comp.nroComprobante" placeholder="99999999" />
-            </div>
-            <InlineMessage v-if="!!data.errors.cliente">{{ data.errors.cliente }}</InlineMessage>
+          <div class="col-span-6 md:col-span-2">
+            <label for="comprobante" class="block text-sm font-medium text-gray-700">Tipo Comprobante</label>
+            <Dropdown v-model="data.comp.tipoComprobante" :options="data.types" optionLabel="nombre" optionValue="codigo" />
+            <InlineMessage v-if="!!data.errors.cliente">{{ data.errors.tipoComprobante }}</InlineMessage>
           </div>
-
-          <div class="col-span-3">
+          <div class="col-span-6 md:col-span-2">
             <label for="fecha" class="block text-sm font-medium text-gray-700">Fecha</label>
             <Calendar name="fecha" v-model="data.comp.fecha"  dateFormat="dd/mm/yy" :showIcon="true" :maxDate="maxDate" />
           </div>
 
-          <div class="col-span-3">
+          <div class="col-span-6 md:col-span-2">
             <label for="vencimiento" class="block text-sm font-medium text-gray-700">Vencimiento</label>
             <Calendar name="vencimiento" v-model="data.comp.vencimiento"  dateFormat="dd/mm/yy" :showIcon="true" :minDate="maxDate" />
           </div>
@@ -55,10 +49,11 @@
 
       <Panel header="Detalle" :toggleable="true" class="w-full mt-2">
         <div class="card">
-          <Toolbar class="mb-4">
-            <template #start>
+          <div class="grid grid-cols-6 gap-1">
+            <div class="col-span-6 mb-6 md:mb-1 md:col-span-2">
               <span class="p-float-label">
-                <AutoComplete v-model="data.product.producto" :suggestions="data.filteredProducts" @complete="searchProducts($event)" :dropdown="true" field="nombre" forceSelection class="mt-1 w-full rounded-md">
+                <AutoComplete v-model="data.product.producto" :delay="1000"
+                :suggestions="data.filteredProducts" @complete="searchProducts($event)" :dropdown="true" field="nombre" forceSelection class="mt-1 w-full rounded-md">
                   <template #item="slotProps">
                     <div class="flex flex-row">
                       <span :class="{'bg-red-100': !slotProps.item.activo, 'text-red-800': !slotProps.item.activo, 'bg-green-100': slotProps.item.activo, 'text-green-800': slotProps.item.activo}" class="text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
@@ -71,29 +66,36 @@
                 </AutoComplete>
                 <label for="autocomplete">Producto o Servicio</label>
               </span>
+            </div>
+
+            <div class="col-span-6 mb-4 md:mb-0 md:col-span-2">
               <span class="p-float-label">
                 <InputNumber name="cantidad" v-model="data.product.cantidad" mode="decimal" :minFractionDigits="2" :min="0" />
                 <label for="cantidad" class="block text-sm font-medium text-gray-700">Cantidad</label>
               </span>
-            </template>
+            </div>
 
-            <template #end>
-                <Button label="Agregar" icon="pi pi-check" class="p-button-sm mr-2" @click="addProduct($event)" />
-            </template>
-          </Toolbar>
+            <div class="col-span-6 mb-4 md:mb-0 md:col-span-2">
+              <Button label="Agregar" icon="pi pi-check" class="p-button-sm mr-2" @click="addProduct($event)" />
+            </div>
+          </div>
 
           <DataTable ref="dt" :value="data.comp.detalle" dataKey="id" :filters="filterDT" editMode="cell" showGridlines 
-            responsiveLayout="scroll" @cell-edit-complete="editProduct">
+            responsiveLayout="stack" @cell-edit-complete="editProduct">
             <template #header>
-              <div class="table-header flex flex-column md:flex-row md:justiify-content-between">
-                <h5 class="mb-2 md:m-0 p-as-md-center">Carga de Productos y/o Servicios</h5>
+              <div class="table-header grid grid-cols-6 gap-1">
+                <div class="col-span-6 md:col-span-3">
+                  <h5>Productos y/o Servicios</h5>
+                </div>
+                <div class="col-span-6 md:col-span-3">
                   <span class="p-input-icon-left">
                     <i class="pi pi-search" />
                     <InputText v-model="filterDT['global'].value" placeholder="Buscar..." />
                   </span>
+                </div>
               </div>
             </template>
-            <Column header="Opciones" :exportable="false" style="min-width:8rem">
+            <Column header="Opciones" :exportable="false" style="min-width:6rem">
                 <template #body="slotProps">
                     <Button icon="pi pi-trash" class="p-button-sm p-button-rounded p-button-text p-button-warning" @click="deleteProduct(slotProps.data)" v-tooltip.bottom="'Borrar'" />
                 </template>
@@ -106,27 +108,67 @@
               </template>
             </Column>
             <Column field="articulo.nombre" header="Nombre" :sortable="true" style="min-width:16rem"></Column>
-            <Column field="cantidad" header="Cantidad" :sortable="true" style="min-width:6rem">
+            <Column field="cantidad" header="Cantidad" :sortable="true" style="min-width:4rem">
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" mode="decimal" :minFractionDigits="2" autofocus :min="0"/>
+                <InputNumber v-model="data[field]" mode="decimal" :maxFractionDigits="2" autofocus :min="0" showButtons buttonLayout="horizontal" :step="1"
+                    decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"/>
               </template>
             </Column>
-            <Column field="descuento" header="Descuento" style="min-width:6rem">
+            <Column field="descuento" header="% Bonif." style="min-width:4rem">
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" mode="decimal" :minFractionDigits="2" autofocus suffix=" %" :min="0" :max="100"/>
+                <InputNumber v-model="data[field]" mode="decimal" :maxFractionDigits="2" autofocus suffix=" %" :min="0" :max="100"/>
               </template>
             </Column>
-            <Column field="precioUnitario" header="Precio Unitario" :sortable="true" style="min-width:8rem">
+            <Column field="precioUniSinImp" header="Precio Uni. Exento" :sortable="true" style="min-width:6rem">
                 <template #body="slotProps">
-                    {{formatCurrency(slotProps.data.price)}}
+                    {{formatCurrency(slotProps.data.precioUniSinImp)}}
+                </template>
+            </Column>
+            <Column field="precioUnitario" header="Precio Unitario" :sortable="true" style="min-width:6rem">
+                <template #body="slotProps">
+                    {{formatCurrency(slotProps.data.precioUnitario)}}
+                </template>
+            </Column>
+            <Column field="precioDescuento" header="Imp.Bonif." :sortable="true" style="min-width:6rem">
+                <template #body="slotProps">
+                    {{formatCurrency(slotProps.data.precioDescuento)}}
                 </template>
             </Column>
             <Column field="precioTotal" header="Total" :sortable="true" style="min-width:8rem">
                 <template #body="slotProps">
-                    {{formatCurrency(slotProps.data.price)}}
+                    {{formatCurrency(slotProps.data.precioTotal)}}
                 </template>
             </Column>
           </DataTable>
+
+          <div class="col-span-6">
+            <div class="w-full text-gray-900 bg-white border border-blue-400 rounded-lg ">
+                <div class="sm:flex sm:items-center sm:justify-between w-full px-4 py-2 text-sm border-b border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+                    <div class="font-bold">Subtotal:</div>
+                    <div class="sm:flex"> $ {{ data.comp.subTotal }}</div>
+                </div>
+                <div class="sm:flex sm:items-center sm:justify-between w-full px-4 py-2 text-sm border-b border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+                    <div class="font-bold">Bonificación:</div>
+                    <div class="sm:flex"> $ {{ data.comp.descuentos }}</div>
+                </div>
+                <div class="sm:flex sm:items-center sm:justify-between w-full px-4 py-2 text-sm border-b border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+                    <div class="font-bold">Impuestos:</div>
+                    <div class="sm:flex">
+                      <ul>
+                        <li class="text-xs font-thin" v-for="item in data.impuestos" :key="item">
+                          {{item.nombre}}: <span class="text-red-900">$ {{item.valor}}</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="sm:flex"> $ {{ data.comp.impuestos }}</div>
+                </div>
+                <div class="sm:flex sm:items-center sm:justify-between w-full px-4 py-2 text-sm bg-indigo-100 border-b border-indigo-500 rounded-t-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+                    <div class="font-bold">TOTAL:</div>
+                    <div class="sm:flex"> $ {{ data.comp.total }}</div>
+                </div>
+            </div>
+          </div>
+
         </div>
       </Panel>
       <div class="flex flex-wrap -mx-3 mb-2 mt-4">
@@ -146,15 +188,13 @@
 </template>
 
 <script>
-  import { ref, reactive, onMounted } from 'vue';
+  import { ref, reactive, onMounted, watch } from 'vue';
   import WService from '@/plugins/ws';
   
   import Panel from 'primevue/panel';
   import AutoComplete from 'primevue/autocomplete';
   import Dropdown from 'primevue/dropdown';
-  import InputMask from 'primevue/inputmask';
   import Calendar from 'primevue/calendar';
-  import Toolbar from 'primevue/toolbar';
   import Button from 'primevue/button';
   import InputText from 'primevue/inputtext';
   import InputNumber from 'primevue/inputnumber';
@@ -171,7 +211,7 @@
   export default {
     emits: ['closeModal'],
     components: {
-      Panel, AutoComplete, Dropdown, InputMask, Calendar, Toolbar, Button, InputText, InputNumber,
+      Panel, AutoComplete, Dropdown, Calendar, Button, InputText, InputNumber,
       DataTable, Column, 
       InlineMessage, Skeleton, Toast
     },
@@ -189,6 +229,10 @@
           fecha: new Date(),
           vencimiento: null,
           detalle: [],
+          subTotal: 0,
+          descuentos: 0,
+          impuestos: 0,
+          total: 0,
         },
         types: [
             {nombre: 'Factura A', codigo: 'FA'},
@@ -198,13 +242,12 @@
             {nombre: 'Presupuesto Compuesto', codigo: 'PC'}
         ],
         filteredCustomers: [],
-        customers: [],
         filteredProducts: [],
-        products: [],
         product: {
           producto: null,
           cantidad: 1,
         },
+        impuestos: [],
         errors: {},
       });
       const filterDT = ref({ 'global': {value: null, matchMode: FilterMatchMode.CONTAINS},});
@@ -220,69 +263,78 @@
       };
 
       const searchCustomers = (event) => {
-          setTimeout(() => {
-              if (data.customers && data.customers.length == 0) {
-                wService.value.getMethod('person/').then(info => {
-                  data.customers = info;
-                  filters(event.query, 'filteredCustomers', 'customers');
-                });
-              }
-              else {
-                filters(event.query, 'filteredCustomers', 'customers');
-              }
-          }, 250);
+        setTimeout(() => {
+          if (event.query.length > 0) {
+            wService.value.getMethod('person/filter/' + event.query).then(info => {
+              data.filteredCustomers = info;
+            });
+          }
+          else {
+            wService.value.getMethod('person/gettop/15').then(info => {
+              data.filteredCustomers = info;
+            });
+          }
+        }, 250);
       };
 
       const searchProducts = (event) => {
         setTimeout(() => {
-            if (data.products && data.products.length == 0) {
-              wService.value.getMethod('product/').then(info => {
-                data.products = info;
-                filters(event.query, 'filteredProducts', 'products');
-              });
-            }
-            else {
-              filters(event.query, 'filteredProducts', 'products');
-            }
+          if (event.query.length > 0) {
+            wService.value.getMethod('product/filter/' + event.query).then(info => {
+              data.filteredProducts = info;
+            });
+          }
+          else {
+            wService.value.getMethod('product/gettop/15').then(info => {
+              data.filteredProducts = info;
+            });
+          }
         }, 250);
       };
 
       const addProduct = () => {
+        const monedaLocal = parseFloat((data.product.producto.costo * data.product.producto.moneda.nominal).toFixed(2))
+        const margen = parseFloat((monedaLocal * data.product.producto.margen / 100).toFixed(2));
+        const cantidad = parseFloat((data.product.cantidad).toFixed(2));
+        const pvpSinImpuestos = parseFloat((monedaLocal + margen).toFixed(2));
+        let tax = 0;
+        data.product.producto.impuestos.forEach(imp => {
+          const diferencia = parseFloat((pvpSinImpuestos * (1 + imp.valor /100)).toFixed(2)) - pvpSinImpuestos;
+          tax += diferencia;
+        })
+        const pvp = pvpSinImpuestos + tax;
+        const subTotal = parseFloat((pvp * cantidad).toFixed(2));
+
         let newReg = {
-              articulo: {
-                codigos: data.product.producto.codigos,
-                nombre: data.product.producto.nombre,
-              },
-              cantidad: data.product.cantidad,
-              descuento: 0,
-              precioUnitario: 0,
-              precioTotal: 0,
-            }
+          articulo: {
+            codigos: data.product.producto.codigos,
+            nombre: data.product.producto.nombre,
+          },
+          cantidad: cantidad,
+          descuento: 0,
+          pvp: pvp,
+          impuestos: data.product.producto.impuestos,
+          precioUniSinImp: monedaLocal + margen,
+          precioUnitario: pvp,
+          precioDescuento: 0,
+          precioTotal: subTotal,
+        }
         data.comp.detalle.push(newReg);
         data.product.producto = null;
         data.product.cantidad = 1;
       };
 
       const editProduct = (event) => {
-          let { data, newValue, field } = event;
-          data[field] = newValue;
+        let { data, newValue, field } = event;
+        data[field] = newValue;
+        data["precioTotal"] = parseFloat((data["precioUnitario"] * data["cantidad"]).toFixed(2));
+        const descuento = parseFloat((data["precioTotal"] * data["descuento"] / 100).toFixed(2));
+        data["precioTotal"] = (data["precioTotal"] - descuento).toFixed(2);
       };
 
       const deleteProduct = () => {
         
       };
-
-      //Busca lo escrito del autocomplete
-      const filters = (value, fil, dat) => {
-        if (!value.trim().length) {
-              data[fil] = [...data[dat]];
-          }
-          else {
-              data[fil] = data[dat].filter((item) => {
-                  return item.nombre.toLowerCase().startsWith(value.toLowerCase());
-              });
-          }
-      }
 
       const formatCurrency = (value) => {
         if(value)
@@ -294,6 +346,57 @@
           //llama al metodo del padre, con 3 parametros.
           emit("closeModal", false)
       }
+
+      const findIndexById = (id) => {
+        let index = -1;
+        for (let i = 0; i < data.impuestos.length; i++) {
+            if (data.impuestos[i].id === id) {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
+      }
+
+      //----------- Watchers
+      watch(data.comp.detalle, async (newDetalle) => {
+        let total = 0, subtotal = 0, descuentos = 0, impuestos = 0, impuestoxIndex = [];
+        data.impuestos = [];
+        newDetalle.forEach(obj => {
+          const totalItem = obj["precioUnitario"] * obj["cantidad"];
+          const totalsinImpuesto = obj["precioUniSinImp"] * obj["cantidad"];
+          total += totalItem;
+          subtotal += totalsinImpuesto;
+          obj.impuestos.forEach(imp => {
+            const taxes = parseFloat((totalsinImpuesto * (1 + imp.valor / 100) - totalsinImpuesto).toFixed(2));
+            const index = findIndexById(imp.id)
+            if (index === -1) {
+              const newImp = {
+                nombre: imp.nombre,
+                valor: taxes,
+                id: imp.id
+              }
+              data.impuestos.push(newImp);
+            }
+            else {
+              impuestoxIndex.push({index: index, taxes: taxes});
+            }
+            impuestos += taxes;
+          })
+          const bonificacion = parseFloat(((totalItem * obj["descuento"]) / 100).toFixed(2));
+          descuentos += bonificacion;
+          obj["precioDescuento"] = bonificacion * -1;
+        })
+
+        impuestoxIndex.forEach(i => {
+          data.impuestos[i.index].valor += i.taxes;
+        })
+        data.comp.subTotal = subtotal.toFixed(2);
+        data.comp.descuentos = (descuentos * -1).toFixed(2);
+        data.comp.impuestos = impuestos.toFixed(2);
+        data.comp.total = (total - descuentos).toFixed(2);
+      })
 
       return {
         loading, maxDate, dt, data, filterDT,
