@@ -104,9 +104,9 @@
       >
         <div>AiMeet &copy; 2022</div>
         <div>
-          Made by
-          <a href="https://github.com/leonardoillanez" target="_blank" class="text-indigo-500 hover:underline"
-            >Leonardo Illanez</a
+          Power by
+          <a href="https://instagram.com/excelenciadigital" target="_blank" class="text-indigo-500 hover:underline"
+            >Excelencia Digital Software</a
           >
         </div>
       </footer>

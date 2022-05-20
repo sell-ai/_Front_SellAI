@@ -172,6 +172,7 @@ export default {
         Cookies.set('uuid', userOrEmail.value);
         Cookies.set('user', response.data.user);
         Cookies.set('token', response.data.token);
+        Cookies.set('deposit', response.data.deposit);
         router.push({ name: 'Home' });
       })
       .catch(error => {
