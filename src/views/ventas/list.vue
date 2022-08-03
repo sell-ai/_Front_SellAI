@@ -1,4 +1,10 @@
 <template>
+    <button class="px-4 py-1 text-sm text-cyan font-semibold rounded-full border
+        border-cyan hover:text-white
+        hover:bg-cyan hover:border-transparent focus:outline-none
+        focus:ring-2 focus:ring-cyan focus:ring-offset-2">
+        Message
+    </button>
     <Listado :title="titulo" :columns="columnas" :wServices="wService" :editFields="campoEditar" :nameMethod="methodName" @showModal="showEdit">
     </Listado>
 
