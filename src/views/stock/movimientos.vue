@@ -214,11 +214,11 @@ export default {
     const blockedPanel = ref(false);
     const searchProd = (event) => {
         setTimeout(() => {
-          let searchtype = "product/gettop/10"
+          let searchtype = "product/gettopproduct/10"
           let buscar = false;
           if (event.query !== "" && event.query.length > 1) {
             buscar = true;
-            searchtype = "product/filter/" + event.query;
+            searchtype = "product/filterproduct/" + event.query;
           }
           else if (event.query === "") {
             buscar = true;

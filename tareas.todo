@@ -8,7 +8,8 @@
 ------------------------------------------------------------------------------------------
 ----------------------------------------  TAREAS  ----------------------------------------
 ✘ Agregar métodos para traer los registros activados solamente. @low @cancelled (17/4/2022 21:21:28)
-☐ Agregar Store para manejar "breadcrumb" y título del sitio. @low 
+☐ Agregar Store para manejar "breadcrumb" y título del sitio. @low
 ✔ Agregar para cerrar sesión del sitio. @high @done (17/4/2022 21:21:10)
 ✔ Agregar token para validar usuario. @high @done (17/4/2022 21:21:08)
 ✔ Agregar demás parámetros de artículos. @today @done (17/4/2022 21:20:59)
+☐ Agregar en ventas que pueda buscar en varios depositos.

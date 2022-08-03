@@ -1,4 +1,5 @@
 <template>
+  <ConfirmPopup />
   <Toast />
   <div v-if="loading">
     <h5>Cargando...</h5>
@@ -105,7 +106,36 @@
           </template>
           <Column header="Opciones" :exportable="false" style="min-width:6rem">
               <template #body="slotProps">
-                  <Button icon="pi pi-trash" class="p-button-sm p-button-rounded p-button-text p-button-warning" @click="deleteProduct(slotProps.data)" v-tooltip.bottom="'Borrar'" />
+                <div class="grid grid-cols-2">
+                  <Button icon="pi pi-trash" class="p-button-sm p-button-rounded p-button-text p-button-warning" @click="deleteProduct($event)" v-tooltip.bottom="'Borrar'" />
+                  <Button icon="pi pi-book" class="p-button-sm p-button-rounded p-button-text p-button-info" @click="toggleOverGrid($event, slotProps.data.articulo.id)" v-tooltip.bottom="'Stock'" />
+                </div>
+                <OverlayPanel :ref="el => functionRefs(el, slotProps.data.articulo.id)" appendTo="body" :showCloseIcon="true" style="width: 450px" :breakpoints="{'960px': '75vw'}">
+                  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                          <th scope="col" class="px-6 py-3">
+                            Deposito
+                          </th>
+                          <th scope="col" class="px-6 py-3">
+                            Cantidad
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="art in slotProps.data.articulo.stockDeposito" :key="art.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                          <td class="px-6 py-4">
+                            {{art.nombre}}
+                          </td>
+                          <td class="px-6 py-4">
+                            {{art.stock}}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </div>
+                </OverlayPanel>
               </template>
           </Column>
           <Column header="Códigos" :sortable="true" style="min-width:6rem">
@@ -251,6 +281,8 @@
   import Skeleton from 'primevue/skeleton';
   import Toast from 'primevue/toast';
   import { useToast } from "primevue/usetoast";
+  import ConfirmPopup from 'primevue/confirmpopup';
+  import { useConfirm } from "primevue/useconfirm";
   import { FilterMatchMode } from 'primevue/api';
   
   export default {
@@ -258,15 +290,17 @@
     components: {
       Panel, AutoComplete, Dropdown, Calendar, Button, InputText, InputNumber,
       DataTable, Column, Listbox, OverlayPanel,
-      InlineMessage, Skeleton, Toast
+      InlineMessage, Skeleton, Toast, ConfirmPopup,
     },
     setup(props, { emit }) {
       const wService = ref(new WService());
       const toast = useToast();
+      const confirmPop = useConfirm();
       const opDeposit = ref();
       const loading = ref(true); //indica si esta en proceso de carga.
       const maxDate = ref(new Date());
       const dt = ref();
+      const overMenu = ref([]);
       const data = reactive({
         comp: {
           cliente: null,
@@ -374,6 +408,42 @@
         }, 250);
       };
 
+      const validateStock = (producto, cantidad) => {
+        let buscarOtroDeposito = false;
+        let deposito = producto.stockDeposito;
+        if (deposito !== undefined && deposito.length > 0 && producto.tipoArticulo !== 'Servicio') {
+          //Busco el deposito y veo si tiene el stock suficiente.
+          const foundDeposit = deposito.find(f => f.id === data.selectedDeposit);
+          if (foundDeposit !== undefined) {
+            //Si hay, pero hay que ver si alcanza la cantidad elegida.
+            if (foundDeposit.stock < cantidad) {
+              //No hay existencia.
+              buscarOtroDeposito = true;
+            }
+          }
+          else {
+            //No hay en el desposito elegido.
+            buscarOtroDeposito = true;
+          }
+
+          if (buscarOtroDeposito && producto.stock >= cantidad) {
+            //Hay existencia pero con otro deposito.
+            //debo buscar otro deposito para marcar descontar de ahí
+            toast.add({severity: 'warn', summary: '¡Sin Stock!', detail:'Se va a descontar de otro deposito', life: 3500});
+          }
+          else if (buscarOtroDeposito) {
+            //No hay existencia.
+            toast.add({severity: 'error', summary: '¡Sin Stock!', detail:'Este producto no alcanza para cubrir del stock.', life: 3500});
+            return false;
+          }
+          return true;
+        }
+        else if (data.product.producto.tipoArticulo !== 'Servicio') {
+          toast.add({severity: 'warn', summary: '¡Atención!', detail:'Este producto no tiene stock.', life: 3500});
+          return false;
+        }
+      };
+
       const addProduct = (event) => {
         if (data.product.producto === null) {
           event.preventDefault();
@@ -383,7 +453,12 @@
           toast.add({severity: 'warn', summary: '¡Atención!', detail:'Este producto ya se encuentra agregado', life: 3500});
           return;
         }
-        if (data.product.cantidad === null) data.product.cantidad = 1;
+        if (!validateStock(data.product.producto, data.product.cantidad)) {
+          return;
+        }
+        
+        if (!data.product.cantidad) data.product.cantidad = 1;
+        
         const monedaLocal = parseFloat((data.product.producto.costo * data.product.producto.moneda.nominal).toFixed(2))
         const margen = parseFloat((monedaLocal * data.product.producto.margen / 100).toFixed(2));
         const cantidad = parseFloat((data.product.cantidad).toFixed(2));
@@ -401,6 +476,7 @@
             id: data.product.producto.id,
             codigos: data.product.producto.codigos,
             nombre: data.product.producto.nombre,
+            stockDeposito: data.product.producto.stockDeposito
           },
           cantidad: cantidad,
           descuento: 0,
@@ -418,14 +494,41 @@
 
       const editProduct = (event) => {
         let { data, newValue, field } = event;
-        data[field] = newValue;
+        if (field == 'cantidad') {
+          if (!validateStock(data.articulo, newValue)) {
+            return;
+          }
+          data[field] = newValue;
+        }
+        else
+          data[field] = newValue;
         data["precioTotal"] = parseFloat((data["precioUnitario"] * data["cantidad"]).toFixed(2));
         const descuento = parseFloat((data["precioTotal"] * data["descuento"] / 100).toFixed(2));
         data["precioTotal"] = (data["precioTotal"] - descuento).toFixed(2);
       };
 
-      const deleteProduct = () => {
+      const deleteProduct = (event) => {
+        confirmPop.require({
+          target: event.currentTarget,
+          message: 'Desea eliminar?',
+          icon: 'pi pi-info-circle',
+          acceptClass: 'p-button-danger',
+          accept: () => {
+            toast.add({severity:'info', summary:'Confirmed', detail:'You have accepted', life: 3000});
+          },
+          reject: () => {
+            toast.add({severity:'error', summary:'Rejected', detail:'You have rejected', life: 3000});
+          }
+        });
         
+      };
+
+      const functionRefs = (el, id) => {
+        overMenu.value[id] = el;
+      }
+
+      const toggleOverGrid = (event, id) => {
+        overMenu.value[id].toggle(event);
       };
 
       const formatCurrency = (value) => {
@@ -531,7 +634,8 @@
         interesComputed, diferenciaComputed, totalComputed,
 
         Save, searchCustomers, changeTypeVoucher, searchProducts, addProduct, editProduct, 
-        deleteProduct, formatCurrency, closeModal, onRowEditSave, toggleDeposit,
+        deleteProduct, functionRefs, toggleOverGrid, formatCurrency, closeModal, 
+        onRowEditSave, toggleDeposit,
       };
     },
     directives: {

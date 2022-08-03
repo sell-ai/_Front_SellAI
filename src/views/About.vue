@@ -1,14 +1,14 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <h1>testing...</h1>
     <Table></Table>
     <Section></Section>
   </div>
 </template>
 
 <script>
-import table from '../components/tables/table.vue';
-import Section from '../components/sections.vue';
+import table from '../components/extras/table.vue';
+import Section from '../components/extras/sections.vue';
 
 export default {
   components: {

@@ -6,6 +6,7 @@ import router from './router';
 import store from './store';
 import PrimeVue from 'primevue/config';
 import ToastService from 'primevue/toastservice';
+import ConfirmationService from 'primevue/confirmationservice';
 import './plugins/themes';
 import './index.css';
 import 'typeface-cairo';
@@ -57,4 +58,4 @@ createApp(App).use(store).use(router).use(PrimeVue, {
         emptyFilterMessage: 'No se han encontrado resultados',
         emptyMessage: 'Sin opciones disponibles'
     }
-}).use(ToastService).mount('#app');
+}).use(ToastService).use(ConfirmationService).mount('#app');

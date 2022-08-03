@@ -9,6 +9,8 @@ import ListSituaciones from '../views/stock/situaciones.vue';
 import ListMovimientos from '../views/stock/movimientos.vue';
 import ListPagos from '../views/pagos/list.vue';
 import ListVentas from '../views/ventas/list.vue';
+import AiCarga from '../views/ai/cargar.vue';
+import PathNotFound from '../layouts/notfound.vue';
 
 import Cookies from 'js-cookie'
 
@@ -17,15 +19,16 @@ const routes = [
   {
     path: '/',
     component: () => import(`@/layouts/default.vue`),
+    meta,
     children: [
       {
-        path: '/home',
+        path: '',
         name: 'Home',
         component: Home,
         meta,
       },
       {
-        path: '/about',
+        path: 'about',
         name: 'About',
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
@@ -34,60 +37,68 @@ const routes = [
         meta,
       },
       {
-        path: '/articulos',
+        path: 'articulos',
         name: 'Articulos',
         component: ListProduct,
         meta,
       },
       {
-        path: '/categorias',
+        path: 'categorias',
         name: 'Categorias',
         component: ListCategory,
         meta,
       },
       {
-        path: '/marcas',
+        path: 'marcas',
         name: 'Marcas',
         component: ListBrand,
         meta,
       },
       {
-        path: '/moneda',
+        path: 'moneda',
         name: 'Moneda',
         component: ListMoneda,
         meta,
       },
       {
-        path: '/situaciones',
+        path: 'situaciones',
         name: 'Situaciones',
         component: ListSituaciones,
         meta,
       },
       {
-        path: '/movimientos',
+        path: 'movimientos',
         name: 'Movimientos',
         component: ListMovimientos,
         meta,
       },
       {
-        path: '/formaspagos',
+        path: 'formaspagos',
         name: 'FormasPagos',
         component: ListPagos,
         meta,
       },
       {
-        path: '/ventas',
+        path: 'ventas',
         name: 'Ventas',
         component: ListVentas,
         meta,
       },
+      {
+        path: 'ai',
+        name: 'AI',
+        component: AiCarga,
+        meta,
+      },
+      { path: '/:pathMatch(.*)*', component: PathNotFound },
     ]
   },
   {
     component: () => import(`@/layouts/empty.vue`),
+    path: '/',
     children: [
       {
-        path: '/Login',
+        path: '/login',
         name: 'Login',
         components: {
           empty: () => import(`@/views/login/login.vue`)
@@ -106,7 +117,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-
+    document.title = `${ process.env.VUE_APP_TITLE } - ${ to.name }`;
     if (to.matched.some(r => r.meta.auth)) {
         const token = Cookies.get('token');
         if (token && token !== 'undefined' && token.length > 0) {
