@@ -96,7 +96,7 @@
                 <div class="col-span-6 sm:col-span-4">
                   <label for="garantia" class="block text-sm font-medium text-gray-700"> Garantia </label>
                   <div class="p-inputgroup">
-                    <InputText v-model="data.art.garantia" placeholder="Tipo Garantia"/>
+                    <InputText class="p-inputtext-sm" v-model="data.art.garantia" placeholder="Tipo Garantia"/>
                     <span class="p-inputgroup-addon">
                         <Dropdown v-model="data.art.tipoGarantia" :options="data.timesGar" placeholder="Tiempo" name="tiempo" />
                     </span>

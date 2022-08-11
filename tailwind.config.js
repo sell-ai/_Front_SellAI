@@ -1,8 +1,11 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
+const colors = require('tailwindcss/colors');
 
 module.exports = {
-  purge: [],
-  darkMode: false, // or 'media' or 'class'
+  content: [
+    './public/**/*.html',
+    './src/**/*.{js,jsx,ts,tsx,vue}',
+  ],
   theme: {
     extend: {
       colors: {
@@ -15,6 +18,9 @@ module.exports = {
           dark: '#0e7490',
           darker: '#155e75',
         },
+        green: colors.emerald,
+        yellow: colors.amber,
+        purple: colors.violet,
       },
       fontFamily: {
         sans: [
@@ -23,9 +29,6 @@ module.exports = {
         ]
       }
     },
-  },
-  variants: {
-    extend: {},
   },
   plugins: [
     require('@tailwindcss/forms'),

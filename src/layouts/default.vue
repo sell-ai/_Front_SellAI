@@ -171,7 +171,8 @@ export default {
           {
             label: 'Inicio',
             icon: 'pi pi-fw pi-home',
-            to: '/home',
+            to: '/',
+            loe: ''
           },
         ],
       },

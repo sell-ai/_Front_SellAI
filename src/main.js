@@ -7,8 +7,9 @@ import router from './router';
 import PrimeVue from 'primevue/config';
 import ToastService from 'primevue/toastservice';
 import ConfirmationService from 'primevue/confirmationservice';
-import './plugins/themes';
 import './index.css';
+import './plugins/themes';
+//import './index.css';
 import 'typeface-cairo';
 import './plugins/yupi18';
 
