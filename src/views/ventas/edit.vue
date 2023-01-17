@@ -1,5 +1,5 @@
 <template>
-  <ConfirmPopup />
+  <ConfirmDialog />
   <Toast />
   <div v-if="loading">
     <h5>Cargando...</h5>
@@ -12,6 +12,7 @@
   <div v-else class="p-4 bg-white rounded-lg border border-gray-200 shadow-md">
     <Panel header="Encabezado" :toggleable="true" class="w-full">
       <template #icons>
+        <span>{{data.selectedDeposit}}</span>
         <button class="p-panel-header-icon p-link mr-2" @click="toggleDeposit">
           <span class="pi pi-cog"></span>
         </button>
@@ -60,16 +61,23 @@
       <div class="card">
         <div class="grid grid-cols-6 gap-1">
           <div class="col-span-6 mb-6 md:mb-1 md:col-span-2">
-            <span class="p-float-label">
+            <Skeleton v-if="load" width="20rem" height="3rem" borderRadius="16px"></Skeleton>
+            <span v-else class="p-float-label">
               <AutoComplete v-model="data.product.producto" :delay="1000" :suggestions="data.filteredProducts" @complete="searchProducts($event)"
                  :dropdown="true" field="nombre" forceSelection class="mt-1 w-full rounded-md">
                 <template #item="slotProps">
-                  <div class="flex flex-row">
-                    <span :class="{'bg-red-100': !slotProps.item.activo, 'text-red-800': !slotProps.item.activo, 'bg-green-100': slotProps.item.activo, 'text-green-800': slotProps.item.activo}" class="text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
+                  <div class="flex p-2">
+                    <span :class="{'bg-red-100': !slotProps.item.activo, 'text-red-800': !slotProps.item.activo, 'bg-green-100': slotProps.item.activo, 'text-green-800': slotProps.item.activo}" class="text-xs font-semibold mr-2 px-2.5 py-0.5 max-h-5 rounded">
                       <i v-if="slotProps.item.activo" class="pi pi-check"></i>
                       <i v-else class="pi pi-times"></i>
                     </span>
                     <div class="ml-2">{{slotProps.item.nombre}}</div>
+                    <div class="ml-8">
+                      <p v-for="stock in slotProps.item.subNombre" :key="stock">
+                        <span 
+                        class="bg-indigo-100 text-indigo-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-indigo-200 dark:text-indigo-900">{{stock}}</span>
+                      </p>
+                    </div>
                   </div>
                 </template>
               </AutoComplete>
@@ -78,14 +86,16 @@
           </div>
 
           <div class="col-span-6 mb-4 md:mb-0 md:col-span-2">
-            <span class="p-float-label">
+            <Skeleton v-if="load" width="16rem" height="3rem" borderRadius="16px"></Skeleton>
+            <span v-else class="p-float-label">
               <InputNumber name="cantidad" v-model="data.product.cantidad" mode="decimal" :minFractionDigits="2" :min="0" />
               <label for="cantidad" class="block text-sm font-medium text-gray-700">Cantidad</label>
             </span>
           </div>
 
           <div class="col-span-6 mb-4 md:mb-0 md:col-span-2">
-            <Button label="Agregar" icon="pi pi-check" class="p-button-sm mr-2" @click="addProduct($event)" />
+            <Skeleton v-if="load" width="8rem" height="3rem" borderRadius="16px"></Skeleton>
+            <Button v-else label="Agregar" icon="pi pi-check" class="p-button-sm mr-2" @click="addProduct($event)" />
           </div>
         </div>
 
@@ -106,75 +116,97 @@
           </template>
           <Column header="Opciones" :exportable="false" style="min-width:6rem">
               <template #body="slotProps">
-                <div class="grid grid-cols-2">
-                  <Button icon="pi pi-trash" class="p-button-sm p-button-rounded p-button-text p-button-warning" @click="deleteProduct($event)" v-tooltip.bottom="'Borrar'" />
-                  <Button icon="pi pi-book" class="p-button-sm p-button-rounded p-button-text p-button-info" @click="toggleOverGrid($event, slotProps.data.articulo.id)" v-tooltip.bottom="'Stock'" />
+                <Skeleton v-if="load"></Skeleton>
+                <div v-else>
+                  <div class="grid grid-cols-2">
+                    <Button icon="pi pi-trash" class="p-button-sm p-button-rounded p-button-text p-button-warning" @click="deleteProduct($event)" v-tooltip.bottom="'Borrar'" />
+                    <Button icon="pi pi-book" class="p-button-sm p-button-rounded p-button-text p-button-info" @click="toggleOverGrid($event, slotProps.data.articulo.id)" v-tooltip.bottom="'Stock'" />
+                  </div>
+                  <OverlayPanel :ref="el => functionRefs(el, slotProps.data.articulo.id)" appendTo="body" :showCloseIcon="true" style="width: 450px" :breakpoints="{'960px': '75vw'}">
+                    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                          <tr>
+                            <th scope="col" class="px-6 py-3">
+                              Deposito
+                            </th>
+                            <th scope="col" class="px-6 py-3">
+                              Cantidad
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="art in slotProps.data.articulo.stockDeposito" :key="art.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <td class="px-6 py-4">
+                              {{art.nombre}}
+                            </td>
+                            <td class="px-6 py-4">
+                              {{art.stock}}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                  </div>
+                  </OverlayPanel>
                 </div>
-                <OverlayPanel :ref="el => functionRefs(el, slotProps.data.articulo.id)" appendTo="body" :showCloseIcon="true" style="width: 450px" :breakpoints="{'960px': '75vw'}">
-                  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                          <th scope="col" class="px-6 py-3">
-                            Deposito
-                          </th>
-                          <th scope="col" class="px-6 py-3">
-                            Cantidad
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="art in slotProps.data.articulo.stockDeposito" :key="art.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                          <td class="px-6 py-4">
-                            {{art.nombre}}
-                          </td>
-                          <td class="px-6 py-4">
-                            {{art.stock}}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                </div>
-                </OverlayPanel>
               </template>
           </Column>
           <Column header="Códigos" :sortable="true" style="min-width:6rem">
             <template #body="slotProps">
-              <span v-for="item in slotProps.data.articulo.codigos" :key="item" class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
+              <Skeleton v-if="load"></Skeleton>
+              <span v-else v-for="item in slotProps.data.articulo.codigos" :key="item" class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
                 {{item}}
               </span>
             </template>
           </Column>
-          <Column field="articulo.nombre" header="Nombre" :sortable="true" style="min-width:16rem"></Column>
+          <Column field="articulo.nombre" header="Nombre" :sortable="true" style="min-width:16rem">
+            <template #body="slotProps">
+              <Skeleton v-if="load"></Skeleton>
+              <span v-else>{{slotProps.data.articulo.nombre}}</span>
+            </template>
+          </Column>
           <Column field="cantidad" header="Cantidad" :sortable="true" style="min-width:4rem">
+            <template #body="slotProps">
+              <Skeleton v-if="load"></Skeleton>
+              <span v-else>{{slotProps.data.cantidad}}</span>
+            </template>
             <template #editor="{ data, field }">
-              <InputNumber v-model="data[field]" mode="decimal" :maxFractionDigits="2" autofocus :min="0" showButtons buttonLayout="horizontal" :step="1"
+              <Skeleton v-if="load"></Skeleton>
+              <InputNumber v-else v-model="data[field]" mode="decimal" :maxFractionDigits="2" autofocus :min="1" showButtons buttonLayout="horizontal" :step="1" class="focogrilla"
                   decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"/>
             </template>
           </Column>
           <Column field="descuento" header="% Bonif." style="min-width:4rem">
+            <template #body="slotProps">
+              <Skeleton v-if="load"></Skeleton>
+              <span v-else>{{slotProps.data.descuento}}</span>
+            </template>
             <template #editor="{ data, field }">
               <InputNumber v-model="data[field]" mode="decimal" :maxFractionDigits="2" suffix=" %" :min="0" :max="100"/>
             </template>
           </Column>
           <Column field="precioUniSinImp" header="Precio Uni. Exento" :sortable="true" style="min-width:6rem">
               <template #body="slotProps">
-                  {{formatCurrency(slotProps.data.precioUniSinImp)}}
+                <Skeleton v-if="load"></Skeleton>
+                <span v-else>{{formatCurrency(slotProps.data.precioUniSinImp)}}</span>
               </template>
           </Column>
           <Column field="precioUnitario" header="Precio Unitario" :sortable="true" style="min-width:6rem">
               <template #body="slotProps">
-                  {{formatCurrency(slotProps.data.precioUnitario)}}
+                <Skeleton v-if="load"></Skeleton>
+                <span v-else>{{formatCurrency(slotProps.data.precioUnitario)}}</span>
               </template>
           </Column>
           <Column field="precioDescuento" header="Imp.Bonif." :sortable="true" style="min-width:6rem">
               <template #body="slotProps">
-                  {{formatCurrency(slotProps.data.precioDescuento)}}
+                <Skeleton v-if="load"></Skeleton>
+                <span v-else>{{formatCurrency(slotProps.data.precioDescuento)}}</span>
               </template>
           </Column>
           <Column field="precioTotal" header="Total" :sortable="true" style="min-width:8rem">
               <template #body="slotProps">
-                  {{formatCurrency(slotProps.data.precioTotal)}}
+                <Skeleton v-if="load"></Skeleton>
+                <span v-else>{{formatCurrency(slotProps.data.precioTotal)}}</span>
               </template>
           </Column>
         </DataTable>
@@ -281,23 +313,25 @@
   import Skeleton from 'primevue/skeleton';
   import Toast from 'primevue/toast';
   import { useToast } from "primevue/usetoast";
-  import ConfirmPopup from 'primevue/confirmpopup';
+  import ConfirmDialog from 'primevue/confirmdialog';
   import { useConfirm } from "primevue/useconfirm";
   import { FilterMatchMode } from 'primevue/api';
+import { Document } from 'postcss';
   
   export default {
     emits: ['closeModal'],
     components: {
       Panel, AutoComplete, Dropdown, Calendar, Button, InputText, InputNumber,
       DataTable, Column, Listbox, OverlayPanel,
-      InlineMessage, Skeleton, Toast, ConfirmPopup,
+      InlineMessage, Skeleton, Toast, ConfirmDialog,
     },
     setup(props, { emit }) {
       const wService = ref(new WService());
       const toast = useToast();
-      const confirmPop = useConfirm();
+      const confirmModal = useConfirm();
       const opDeposit = ref();
       const loading = ref(true); //indica si esta en proceso de carga.
+      const load = ref(false); //cuando usa API.
       const maxDate = ref(new Date());
       const dt = ref();
       const overMenu = ref([]);
@@ -395,80 +429,96 @@
 
       const searchProducts = (event) => {
         setTimeout(() => {
-          if (event.query.length > 0) {
-            wService.value.getMethod('product/filter/' + event.query).then(info => {
+          let cantidad = 15;
+          let filter = event.query;
+          wService.value.getMethod('product/stock/' + cantidad + '/' + filter).then(info => {
               data.filteredProducts = info;
             });
-          }
-          else {
-            wService.value.getMethod('product/gettop/15').then(info => {
-              data.filteredProducts = info;
-            });
-          }
         }, 250);
       };
 
-      const validateStock = (producto, cantidad) => {
-        let buscarOtroDeposito = false;
+      //Valida el producto a traves de api
+      const validateStock = async (producto, cantidad) => {
         let deposito = producto.stockDeposito;
-        if (deposito !== undefined && deposito.length > 0 && producto.tipoArticulo !== 'Servicio') {
-          //Busco el deposito y veo si tiene el stock suficiente.
-          const foundDeposit = deposito.find(f => f.id === data.selectedDeposit);
-          if (foundDeposit !== undefined) {
-            //Si hay, pero hay que ver si alcanza la cantidad elegida.
-            if (foundDeposit.stock < cantidad) {
-              //No hay existencia.
-              buscarOtroDeposito = true;
-            }
-          }
-          else {
-            //No hay en el desposito elegido.
-            buscarOtroDeposito = true;
-          }
 
-          if (buscarOtroDeposito && producto.stock >= cantidad) {
-            //Hay existencia pero con otro deposito.
-            //debo buscar otro deposito para marcar descontar de ahí
-            toast.add({severity: 'warn', summary: '¡Sin Stock!', detail:'Se va a descontar de otro deposito', life: 3500});
-          }
-          else if (buscarOtroDeposito) {
-            //No hay existencia.
-            toast.add({severity: 'error', summary: '¡Sin Stock!', detail:'Este producto no alcanza para cubrir del stock.', life: 3500});
-            return false;
-          }
-          return true;
+        if (producto.tipoArticulo === 'Servicio')
+          return "Servicio";
+
+        if (deposito !== undefined && deposito.length > 0 && producto.tipoArticulo !== 'Servicio') {
+          //Sino es servicio y tiene deposito busco si tiene stock.
+          let myPromise = new Promise(function(resolve) {
+            wService.value.getMethod('product/stock/' + producto.id +'/'+ data.selectedDeposit + '/' + cantidad)
+            .then(res => {
+              data.product.producto = res;
+              resolve(res.situacionDeposito);
+            })
+            .catch(ex => {
+              console.log(ex);
+              resolve("Error");
+            });
+          });
+          return await myPromise;
         }
-        else if (data.product.producto.tipoArticulo !== 'Servicio') {
-          toast.add({severity: 'warn', summary: '¡Atención!', detail:'Este producto no tiene stock.', life: 3500});
-          return false;
+        else {
+          return "confirmSinStock";
         }
+       
       };
 
-      const addProduct = (event) => {
+      //Agregar producto a la tabla
+      const addProduct = async (event) => {
         if (data.product.producto === null) {
           event.preventDefault();
           return;
         }
+
         if (data.comp.detalle.some(s => s.articulo.id === data.product.producto.id)) {
           toast.add({severity: 'warn', summary: '¡Atención!', detail:'Este producto ya se encuentra agregado', life: 3500});
           return;
         }
-        if (!validateStock(data.product.producto, data.product.cantidad)) {
-          return;
-        }
-        
+        load.value = true;
+
         if (!data.product.cantidad) data.product.cantidad = 1;
-        
-        const monedaLocal = parseFloat((data.product.producto.costo * data.product.producto.moneda.nominal).toFixed(2))
-        const margen = parseFloat((monedaLocal * data.product.producto.margen / 100).toFixed(2));
+
+        let resVal = await validateStock(data.product.producto, data.product.cantidad);
+        let msg = "";
+        switch (resVal) {
+          case "Servicio":
+          case "Error":
+            load.value = false;
+            return;
+          case "Si":
+            addNewReg();
+            load.value = false;
+            return;
+          case "No":
+          case "confirmSinStock":
+            msg = 'Este producto no tiene stock. Desea continuar?';
+            break;
+          case "Combinar":
+            msg = 'Deposito no tiene stock suficiente. Desea combiar?';
+            break;
+        }
+
+        confirmModal.require({
+            message: msg,
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+              load.value = false;
+              addNewReg();
+            },
+            reject: () => {
+              load.value = false;
+              toast.add({severity:'error', summary:'Rechazado', detail:'Producto rechazado!', life: 3000});
+            }
+        });
+      };
+
+      const addNewReg = () => {
+        if (!data.product.cantidad) data.product.cantidad = 1;
         const cantidad = parseFloat((data.product.cantidad).toFixed(2));
-        const pvpSinImpuestos = parseFloat((monedaLocal + margen).toFixed(2));
-        let tax = 0;
-        data.product.producto.impuestos.forEach(imp => {
-          const diferencia = parseFloat((pvpSinImpuestos * (1 + imp.valor /100)).toFixed(2)) - pvpSinImpuestos;
-          tax += diferencia;
-        })
-        const pvp = pvpSinImpuestos + tax;
+        
+        const pvp = parseFloat((data.product.producto.pvp).toFixed(2));
         const subTotal = parseFloat((pvp * cantidad).toFixed(2));
 
         let newReg = {
@@ -482,7 +532,7 @@
           descuento: 0,
           pvp: pvp,
           impuestos: data.product.producto.impuestos,
-          precioUniSinImp: monedaLocal + margen,
+          precioUniSinImp: data.product.producto.precioSinImpuestos,
           precioUnitario: pvp,
           precioDescuento: 0,
           precioTotal: subTotal,
@@ -492,19 +542,57 @@
         data.product.cantidad = null;
       };
 
-      const editProduct = (event) => {
+      const editProduct = async (event) => {
+        load.value = true;
         let { data, newValue, field } = event;
         if (field == 'cantidad') {
-          if (!validateStock(data.articulo, newValue)) {
-            return;
+          let resVal = await validateStock(data.articulo, newValue);
+          let msg = "";
+          switch (resVal) {
+            case "Servicio":
+            case "Error":
+              load.value = false;
+              return;
+            case "Si":
+              data[field] = newValue;
+              changeTotal(data);
+              load.value = false;
+              return;
+            case "No":
+            case "confirmSinStock":
+              msg = 'Este producto no tiene stock. Desea continuar?';
+              break;
+            case "Combinar":
+              msg = 'Deposito no tiene stock suficiente. Desea combiar?';
+              break;
           }
-          data[field] = newValue;
+          if (msg !== "") {
+            load.value = false;
+            confirmModal.require({
+              message: msg,
+              icon: 'pi pi-exclamation-triangle',
+              accept: () => {
+                data[field] = newValue;
+                changeTotal(data);
+              },
+              reject: () => {
+                  toast.add({severity:'error', summary:'Rechazado', detail:'Producto rechazado!', life: 3000});
+              }
+            });
+          }
+          
         }
-        else
+        else {
           data[field] = newValue;
-        data["precioTotal"] = parseFloat((data["precioUnitario"] * data["cantidad"]).toFixed(2));
-        const descuento = parseFloat((data["precioTotal"] * data["descuento"] / 100).toFixed(2));
-        data["precioTotal"] = (data["precioTotal"] - descuento).toFixed(2);
+          changeTotal(data);
+          load.value = false;
+        }
+      };
+
+      const changeTotal = (data) => {
+          data["precioTotal"] = parseFloat((data["precioUnitario"] * data["cantidad"]).toFixed(2));
+          const descuento = parseFloat((data["precioTotal"] * data["descuento"] / 100).toFixed(2));
+          data["precioTotal"] = formatCurrency(parseFloat((data["precioTotal"] - descuento).toFixed(2)));
       };
 
       const deleteProduct = (event) => {
@@ -629,7 +717,7 @@
       })
 
       return {
-        opDeposit, loading, maxDate, dt, data, filterDT, editingRows,
+        opDeposit, loading, load, maxDate, dt, data, filterDT, editingRows,
 
         interesComputed, diferenciaComputed, totalComputed,
 

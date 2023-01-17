@@ -18,6 +18,7 @@
             const titulo = ref('Situaciones');
             const methodName = ref('situacion/');
             const columnas = ref([
+                {field: 'sucursal', subfield: 'nombre', header: 'Sucursal', sort: true, export: true, style: '' },
                 {field: 'nombre', header: 'Nombre', sort: true, export: true, style: '', focus: true },
                 {field: 'descripcion', header: 'Descripción', sort: true, export: true, style: '' },
                 {field: 'cuentaStock', header: 'Cuenta Stock', sort: true, export: true, style: '', type: 'bool' },
@@ -27,9 +28,15 @@
             const campoEditar = ref([
                 { name: 'nombre', label: 'Nombre', type: 'text', required: true, focus: true},
                 { name: 'descripcion', label: 'Descripción', type: 'area'},
-                {name: 'cuentaStock', label: 'Cuenta Stock', type: 'bool'},
-                {name: 'facturable', label: 'Facturable', type: 'bool'},
-                {name: 'activo', label: 'Activo', type: 'bool'},
+                { name: 'cuentaStock', label: 'Cuenta Stock', type: 'bool'},
+                { name: 'facturable', label: 'Facturable', type: 'bool'},
+                { name: 'activo', label: 'Activo', type: 'bool'},
+                { name: 'sucursal', label: 'Sucursal', type: 'object', fields: [
+                   { name: 'nombre', label: 'Nombre', type: 'text', required: true },
+                   { name: 'location', label: 'Ubicación', type: 'geo' },
+                   { name: 'address', label: 'Dirección', type: 'text' },
+                 ] 
+                }
             ]);
 
             return {

@@ -5,7 +5,7 @@
             <Toolbar class="mb-4">
                 <template #start>
                     <Button label="Nuevo" icon="pi pi-plus" class="p-button-success mr-2" @click="setModal(true, true)" />
-                    <Button label="Borrar" icon="pi pi-trash" class="p-button-danger" @click="confirmDeleteSelected(true)" :disabled="!selectedDatas || !selectedDatas.length" />
+                    <Button label="Borrar" icon="pi pi-trash" class="ml-2 p-button-danger" @click="confirmDeleteSelected(true)" :disabled="!selectedDatas || !selectedDatas.length" />
                 </template>
 
                 <template #end>
@@ -39,7 +39,9 @@
                         </span>
                         <span v-else-if="col.type == 'date'" v-html="formatDate(slotProp.data[col.field], col.format, col.field)">
                         </span>
-                        <div v-else class="text-sm font-medium text-gray-900" v-html="highlightMatches(slotProp.data[col.field])">
+                        <div v-else-if="col.subfield !== undefined" class="text-sm font-medium text-gray-900" v-html="highlightMatches(slotProp.data, col.field, col.subfield)">
+                        </div>
+                        <div v-else class="text-sm font-medium text-gray-900" v-html="highlightMatches(slotProp.data, col.field)">
                         </div>
                     </template>
                 </Column>
@@ -205,7 +207,27 @@ export default {
         }
 
         //Con la busqueda lo carga en color rojo
-        const highlightMatches = (text) => {
+        const highlightMatches = (data, ...args) => {
+            let text = '';
+            
+            switch (args.length) {
+                case 1:
+                    text = data[args[0]];
+                    break;
+                case 2:
+                    if (data[args[0]])
+                        text = data[args[0]][args[1]];
+                    break;
+                case 3:
+                    if (data[args[0]] && data[args[0]][args[1]])
+                    text = data[args[0]][args[1]][args[2]];
+                    break;
+                case 4:
+                    if (data[args[0]] && data[args[0]][args[1]] && data[args[0]][args[1]][args[2]])
+                        text = data[args[0]][args[1]][args[2]][args[3]];
+                    break;
+            }
+            
             if (!filters.value["global"].value) return text;
             const matchExists = text.toLowerCase().includes(filters.value["global"].value.toLowerCase());
             if (!matchExists) return text;

@@ -141,6 +141,7 @@ export default {
     const loading = ref(false);
     const component = ref('Ayuda');
     const Errors = ref([]);
+    const count = ref(0);
     const ImgSrc = require(`@/assets/logo.png`);
 
     const showPassMethod = (show) => {
@@ -171,28 +172,46 @@ export default {
         console.log(JSON.stringify(response.data));
         Cookies.set('uuid', userOrEmail.value);
         Cookies.set('user', response.data.user);
-        Cookies.set('token', response.data.token);
+        Cookies.set('token', response.data.token, { expires: 1 });
         Cookies.set('deposit', response.data.deposit);
         router.push({ name: 'Home' });
       })
       .catch(error => {
         Errors.value = [];
         loading.value = false;
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          Errors.value.push(error.response.data.Error);
-          //console.log("Error Response", error.response.status);
-          //console.log("Error Response", error.response.headers);
+
+        if (error.response && error.response.data) {
+          if (error.response.data.Error) {
+            error.response.data.Error.forEach(e => {
+              Errors.value.push({
+                content: e, id: count.value++
+              });
+            });
+          }
+          else
+          {
+            Errors.value.push({
+              content: error.response.toJSON(), id: count.value++
+            });
+          }
         } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
           console.log("Error Request", error.request);
-        } else {
-          Errors.value.push(error.message);
+          if (error.message && error.message == "Network Error") {
+            Errors.value.push({
+              content: "Sin conexión con el servidor", id: count.value++
+            });
+          }
+          else {
+            Errors.value.push({
+              content: error.request, id: count.value++
+            });
+          }
+        } else if (error.message) {
+          Errors.value.push({ content: error.message, id: count.value++ });
         }
-        console.log(error.toJSON());
+        else {
+          Errors.value.push({ content: error.toJSON(), id: count.value++ });
+        }
       });
     }
 

@@ -126,6 +126,21 @@
         </div>
       </footer>
     </div>
+
+    <Dialog header="Sin permiso" v-model:visible="displayConfirmation" :breakpoints="{'960px': '75vw', '640px': '90vw'}" :style="{width: '50vw'}" :modal="true">
+      <div class="confirmation-content">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+        <span>No tiene permiso para acceder o debes loguearte nuevamente</span>
+        <div class="flex p-4 mt-4">
+          <i class="pi pi-question-circle" style="font-size: 1.5rem"></i>
+          <p class="pl-2"><Tag class="mr-2" severity="info" value="Desea loguearte?"></Tag></p>
+        </div>
+      </div>
+      <template #footer>
+        <Button label="No" icon="pi pi-times" @click="displayConfirmation = false" class="p-button-text"/>
+        <Button label="Si" icon="pi pi-check" @click="logOut" class="p-button-text" autofocus />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -136,6 +151,8 @@ import { useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
 import PanelMenu from 'primevue/panelmenu';
+import Dialog from 'primevue/dialog';
+import Tag from 'primevue/tag';
 
 import {
   Disclosure,
@@ -146,22 +163,18 @@ import {
 import { ChevronUpIcon } from '@heroicons/vue/solid';
 import { MenuIcon, XIcon } from '@heroicons/vue/outline';
 import Cookies from 'js-cookie';
+import axios from 'axios';
 
 export default {
   components: {
-    Button,
-    Menu,
-    PanelMenu,
-    Disclosure,
-    DisclosureButton,
-    DisclosurePanel,
-    ChevronUpIcon,
-    MenuIcon,
-    XIcon,
+    Button, Menu, PanelMenu, Dialog, Tag,
+    Disclosure, DisclosureButton, DisclosurePanel,
+    ChevronUpIcon, MenuIcon, XIcon,
   },
   setup() {
     const open = ref(false);
     const menuUser = ref();
+    const displayConfirmation = ref(false);
     const navigation = ref([
       {
         name: 'Dashboard',
@@ -290,15 +303,20 @@ export default {
       router.push({ name: 'Login' });
     }
 
+    axios.interceptors.response.use(function (response) {
+      return response;
+    }, function (error) {
+      if (error.response && error.response.status && error.response.status == 401) {
+        displayConfirmation.value = true;
+      }
+      return Promise.reject(error);
+    });
+
 
     return {
-      navigation,
-      itemsMenu,
-      open,
-      menuUser,
+      navigation, itemsMenu, open, menuUser, displayConfirmation,
 
-      openMenuUser,
-      logOut,
+      openMenuUser, logOut,
     };
   },
 };

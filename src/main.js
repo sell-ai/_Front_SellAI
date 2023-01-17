@@ -9,7 +9,6 @@ import ToastService from 'primevue/toastservice';
 import ConfirmationService from 'primevue/confirmationservice';
 import './index.css';
 import './plugins/themes';
-//import './index.css';
 import 'typeface-cairo';
 import './plugins/yupi18';
 

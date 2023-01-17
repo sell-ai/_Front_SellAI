@@ -10,19 +10,21 @@
   </div>
   <div v-else class="p-4 bg-white rounded-lg border border-gray-200 shadow-md">
     <form class="w-full max-w-lg">
-      <div v-for="field in fields" :key="field.id" class="flex flex-wrap -mx-3 mb-6">
+      <div v-for="field in fields" :key="field.id" class="-mx-3 mb-6">
         <div class="w-full px-3">
-          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" :for="field.name">
-            {{ field.label }} <span v-if="field.required" class="text-xs text-red-500">*</span>
-          </label>
-          <InputText v-if="field.type === 'text' && field.focus" :name="field.name" type="text" v-model="data.info[field.name]" class="block mt-1 w-full" v-focus />
-          <InputText v-else-if="field.type === 'text'" :name="field.name" type="text" v-model="data.info[field.name]" class="block mt-1 w-full" />
-          <InputNumber v-else-if="field.type === 'currency'" :name="field.name" v-model="data.info[field.name]" mode="currency" currency="USD" locale="en-US" class="mt-1 w-full" />
-          <Dropdown v-else-if="field.type === 'select'" :name="field.name" v-model="data.info[field.name]" :options="field.select.options" :optionLabel="field.select.label" :optionValue="field.select.value" class="mt-1 w-full" />
-          <Calendar v-else-if="field.type === 'date'" :name="field.name" v-model="data.info[field.name]" :showIcon="true" dateFormat="dd/mm/yy" class="mt-1 w-full" />
-          <Textarea v-else-if="field.type === 'area'" :name="field.name" v-model="data.info[field.name]" rows="5" cols="30" class="mt-1 w-full" />
-          <InputMask v-else-if="field.type === 'mask'" :mask="field.mask" v-model="data.info[field.name]" :placeholder="field.mask" class="mt-1 w-full" />
-          <InputSwitch v-else-if="field.type === 'bool'" :name="field.name" v-model="data.info[field.name]" class="block mt-1" />
+          <div v-if="field.type !== 'object'" class="grid grid-cols-6 gap-4">
+            <Schema :field="field" :data="data.info" />
+          </div>
+          <div class="grid grid-cols-6 gap-4 m-4" v-else>
+            <div class="p-6 rounded-lg shadow-lg bg-white col-span-6">
+              <h5 class="text-gray-900 text-xl leading-tight font-medium mb-2">{{field.label}}</h5>
+              <div class="grid grid-cols-6 gap-2">
+                <template v-for="fd in field.fields" :key="fd">
+                  <Schema :field="fd" :data="data.info[field.name]" />
+                </template>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="flex flex-wrap -mx-3 mb-2">
@@ -45,17 +47,11 @@
   import { ref, reactive, onMounted } from 'vue';
   import { object, string } from "yup";
   import moment from 'moment';
-
-  import InputText from 'primevue/inputtext';
-  import InputNumber from 'primevue/inputnumber';
-  import Textarea from 'primevue/textarea';
-  import InputSwitch from 'primevue/inputswitch';
-  import Calendar from 'primevue/calendar';
-  import Dropdown from 'primevue/dropdown';
-  import InputMask from 'primevue/inputmask';
+  
   import Toast from 'primevue/toast';
   import { useToast } from "primevue/usetoast";
   import Skeleton from 'primevue/skeleton';
+  import Schema from './schema.vue'
   
   export default {
     props: {
@@ -67,10 +63,11 @@
     },
     emits: ['closeModal'],
     components: {
-      InputText, InputNumber, Textarea, InputSwitch, Calendar, Dropdown, InputMask, Toast, Skeleton
+      Toast, Skeleton, Schema
     },
     setup(props, { emit }) {
       onMounted(() => {
+        
         //verifico si es nuevo o editar
         if (props.info.id) { 
           //Verifico los de fecha.
@@ -87,6 +84,8 @@
           }
           newReg.value = false;
         }
+        //Inicializo datos
+        initSchema();
         loading.value = false;
       })
       const toast = useToast();
@@ -100,26 +99,49 @@
           id: '',
         }
       }); //información del registro
-      props.fieldsEd.forEach(obj => {
-        switch (obj.type) {
-          case "text":
-          case "area":
-            data.info[obj.name] = "";
-            break;
+      
+      const initSchema = () => {
+        props.fieldsEd.forEach(obj => {
+          if (data.info[obj.name] === undefined || data.info[obj.name] === null) {
+            if (obj.type === 'object') {
+              data.info[obj.name] = {};
+              for (let ko of Object.keys(obj.fields)) {
+                let nom = obj.fields[ko].name;
+                let typ = obj.fields[ko].type;
+                data.info[obj.name][nom] = schemaWhite(typ);
+              }
+            }
+            else {
+              data.info[obj.name] = schemaWhite(obj.type);
+            }
+          }
+        });
+      };
+
+      const schemaWhite = (dataSchema) => {
+        let result;
+        switch (dataSchema) {
           case "date":
-            data.info[obj.name] = null;
+            result = null;
             break;
           case "bool":
-            data.info[obj.name] = true;
+            result = true;
             break; 
           case "select":
-            data.info[obj.name] = [];
+            result = [];
             break;
+          case "object":
+            result = {};
+            break;
+          case "text":
+          case "area":
           default:
-            data.info[obj.name] = "";
+            result = "";
             break;
         }
-      });
+        return result;
+      };
+      
       const validateSchema = object().shape({
         nombre: string().required("El campo nombre debe completarse"),
       }); //que campos se validan.
@@ -176,18 +198,5 @@
         validateSchema, validate, Save, closeModal,
       };
     },
-    directives: {
-      // enables v-focus in template
-      focus: {
-        mounted: (el) => {
-          if (el.getElementsByTagName('INPUT').length > 0) {
-            el.getElementsByTagName('INPUT')[0].focus();
-          }
-          else {
-            el.focus();
-          }
-        }
-      }
-    }
   }
 </script>
