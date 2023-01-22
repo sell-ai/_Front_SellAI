@@ -117,13 +117,7 @@
       <!-- Main footer -->
       <footer class="absolute p-4 bottom-0 inset-x-0 flex items-center justify-between bg-white border-t dark:bg-darker   dark:border-blue-darker"
       >
-        <div>AiMeet &copy; 2022</div>
-        <div>
-          Power by
-          <a href="https://instagram.com/excelenciadigital" target="_blank" class="text-indigo-500 hover:underline"
-            >Excelencia Digital Software</a
-          >
-        </div>
+        <div>SellAI &copy; 2023</div>
       </footer>
     </div>
 
@@ -145,7 +139,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 import Button from 'primevue/button';
@@ -172,96 +166,17 @@ export default {
     ChevronUpIcon, MenuIcon, XIcon,
   },
   setup() {
+
+    onMounted(() => {     
+      let items = Cookies.get("menu");
+      items = JSON.parse(items);
+      navigation.value = items;
+    });
+
     const open = ref(false);
     const menuUser = ref();
     const displayConfirmation = ref(false);
-    const navigation = ref([
-      {
-        name: 'Dashboard',
-        d: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
-        isActive: false,
-        items: [
-          {
-            label: 'Inicio',
-            icon: 'pi pi-fw pi-home',
-            to: '/',
-            loe: ''
-          },
-        ],
-      },
-      {
-        name: 'Artículos',
-        d: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z',
-        isActive: false,
-        items: [
-          {
-            label: 'Listado',
-            icon: 'pi pi-fw pi-table',
-            to: '/articulos',
-          },
-          {
-            label: 'Stock',
-            icon: 'pi pi-fw pi-box',
-            items: [
-              { 
-                label: 'Movimientos',
-                icon: 'pi pi-fw pi-sync',
-                to: '/movimientos'
-              },
-              { 
-                label: 'Situaciones',
-                icon: 'pi pi-fw pi-sitemap',
-                to: '/situaciones'
-              },
-            ]
-          },
-          {
-            label: 'Parametros',
-            icon: 'pi pi-fw pi-cog',
-            items: [
-              { 
-                label: 'Categorías',
-                icon: 'pi pi-fw pi-tags',
-                to: '/categorias'
-              },
-              { 
-                label: 'Marcas',
-                icon: 'pi pi-fw pi-shopping-bag',
-                to: '/marcas'
-              },
-              { 
-                label: 'Monedas',
-                icon: 'pi pi-fw pi-wallet',
-                to: '/moneda'
-              },
-            ]
-          },
-        ],
-      },
-      {
-        name: 'Ventas',
-        d: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-        isActive: false,
-        items: [
-          {
-            label: 'Listado',
-            icon: 'pi pi-fw pi-table',
-            to: '/ventas',
-          },
-          {
-            label: 'Parametros',
-            icon: 'pi pi-fw pi-cog',
-            items: [
-              { 
-                label: 'Formas de Pago',
-                icon: 'pi pi-fw pi-credit-card',
-                to: '/formaspagos'
-              },
-            ]
-          },
-        ],
-      },
-    ]);
+    const navigation = ref([]);// traer desde las cookies.
     const itemsMenu = ref([
       {
         label: 'Opciones',
@@ -300,6 +215,9 @@ export default {
 
     const logOut = () => {
       Cookies.remove('token');
+      Cookies.remove('menu');
+      Cookies.remove('deposit');
+      Cookies.remove('user');
       router.push({ name: 'Login' });
     }
 

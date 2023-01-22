@@ -12,7 +12,7 @@ import './plugins/themes';
 import 'typeface-cairo';
 import './plugins/yupi18';
 
-axios.defaults.baseURL = 'https://localhost:7132/api/';
+axios.defaults.baseURL = 'https://localhost:7010/api/';
 
 createApp(App).use(createPinia()).use(router).use(PrimeVue, {
     locale: {

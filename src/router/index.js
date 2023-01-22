@@ -98,7 +98,7 @@ const routes = [
     path: '/',
     children: [
       {
-        path: '/login',
+        path: 'login',
         name: 'Login',
         components: {
           empty: () => import(`@/views/login/login.vue`)
