@@ -1,6 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .w-screen-md {
+        width: calc(100vw - 270px);
+    }
+
+    .h-screen-sm {
+        height: calc(100vh - 4rem);
+    }
+
+    .h-screen-xs {
+        height: calc(100vh - 75px);
+    }
+
+    .h-screen-md {
+        height: calc(100vh - 2rem);
+    }
+}
+
 .p-chips-input-token input {
     box-shadow: none!important;
     outline: 2px solid transparent;
