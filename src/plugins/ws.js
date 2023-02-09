@@ -3,12 +3,12 @@ import Cookies from 'js-cookie'
 
 export default class WService {
     getMethod(url) {
-        const keyT = btoa(Cookies.get('user') + ':' + Cookies.get('token'));
-        const basicAuth = 'Basic ' + keyT;
+        const keyT = Cookies.get('token');
+        const bearerAuth = 'Bearer ' + keyT;
         var config = {
             method: 'get',
             url: url,
-            headers: { 'Authorization': basicAuth }
+            headers: { 'Authorization': bearerAuth }
         };
           
         const promise = axios(config);
@@ -19,7 +19,7 @@ export default class WService {
 
     postMethod(url, data, id) {
         const keyT = btoa(Cookies.get('user') + ':' + Cookies.get('token'));
-        const basicAuth = 'Basic ' + keyT;
+        const basicAuth = 'Bearer ' + keyT;
         var config = {
             method: id !== '' ? 'put' : 'post',
             url: url,
@@ -37,7 +37,7 @@ export default class WService {
 
     deleteMethod(url, id) {
         const keyT = btoa(Cookies.get('user') + ':' + Cookies.get('token'));
-        const basicAuth = 'Basic ' + keyT;
+        const basicAuth = 'Bearer ' + keyT;
         var config = {
             method: 'delete',
             url: url + id,

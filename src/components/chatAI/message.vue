@@ -2,7 +2,9 @@
   <div class="space-y-2 my-4">
     <div class="flex items-end" :class="{'justify-end': !response}">
       <div :class="classObject" class="flex flex-col space-y-2 text-xs max-w-xs mx-2">
-        <div v-if="response" alert class="relative w-full p-4 mb-4 text-xl text-white border border-solid rounded-lg bg-gradient-to-tl from-blue-700 to-cyan-500 border-cyan-200" v-html="message"></div>
+        <div v-if="response" alert class="relative w-full p-4 mb-4 text-xl text-white border border-solid rounded-lg bg-gradient-to-tl from-blue-700 to-cyan-500 border-cyan-200">
+          <VueWriter :array="[message]" :iterations='1' :typeSpeed="30" @finish="finishWrite"/>
+        </div>
         <div v-else alert class="relative w-full p-4 mb-4 text-xl text-white border border-solid rounded-lg bg-gradient-to-tl from-emerald-500 to-teal-400 border-emerald-300" v-html="message"></div>
       </div>
       <div>
@@ -20,6 +22,7 @@
 
 <script>
 import { reactive } from 'vue'
+import VueWriter from "./vue-writer";
 import Avatar from 'primevue/avatar';
 
 export default{
@@ -31,10 +34,13 @@ export default{
       default: ''
     }
   },
+  emits: [
+    'onfinish'
+  ],
   components: {
-    Avatar,
+    VueWriter, Avatar,
   },
-  setup(props){
+  setup(props, { emit }){
     
     const imgBot = require('@/assets/ai48.png');
     const resp = props.response;
@@ -45,8 +51,14 @@ export default{
       'items-end': !resp
     });
 
+    const finishWrite = () => {
+      emit('onfinish');
+    };
+
     return {
-      imgBot, classObject
+      imgBot, classObject,
+
+      finishWrite
     };
   }
 }
