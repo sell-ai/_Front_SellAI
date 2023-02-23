@@ -102,6 +102,7 @@ import Menu from 'primevue/menu';
 import InputText from 'primevue/inputtext';
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
+import { useAlertStore } from '@/store'
 import EditList from './edit'
 
 export default {
@@ -137,6 +138,7 @@ export default {
         })
         const forstrDate = "DD/MM/YYYY";
         const toast = useToast();
+        const alertStore = useAlertStore();
         const refWs = ref(props.wServices);
         const methodName = ref(props.nameMethod);
         const wsProp = new props.wServices();
@@ -198,7 +200,12 @@ export default {
                 loading.value = false;
             }).catch(ex => {
                 loading.value = false;
-                console.log("Error Inital: ", ex);
+                alertStore.clear();
+                alertStore.exception(ex);
+                alertStore.alert.forEach(er => {
+                    toast.add({ severity: er.type,  summary: 'Ocurrio un inconveniente', 
+                        detail: er.message,  life: 5000 });
+                });
             });
         }
 

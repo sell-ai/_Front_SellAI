@@ -29,8 +29,8 @@ export default defineComponent({
       default: 0,
     },
     caret: {
-      type: String,
-      default: "cursor",
+      type: Boolean,
+      default: true,
     },
     iterations: {
       type: Number,
@@ -64,6 +64,7 @@ export default defineComponent({
           loop += 1;
           if (loop === this.iterations) {
             this.$emit('finish');
+            this.convert_to_list();
             return (this.typeStatus = false);
           }
         }
@@ -89,17 +90,52 @@ export default defineComponent({
         setTimeout(this.typewriter, this.typeSpeed + this.intervals);
       }
     },
+    convert_to_list() {
+      const inputText = this.typeValue;
+      if (inputText.indexOf("~")> -1) {
+        const splittedText = inputText.split("~");
+        console.log(splittedText);
+        const fragment = document.createDocumentFragment();
+        let divMainUL = document.createElement("div");
+        divMainUL.classList.add("bg-gradient-to-tl", "from-blue-400", "to-cyan-100",
+          "text-gray-900", "border", "border-cyan-200", "rounded-lg");
+        let ulfrag = document.createElement("ul");
+        ulfrag.classList.add("ml-8","list-disc");
+        splittedText.forEach((text, index) => {
+          if (index === 0) {
+            const divItem = document.createElement("div");
+            divItem.classList.add("underline", "underline-offset-8", "decoration-white-500");
+            divItem.textContent = text;
+            fragment.appendChild(divItem);
+          }
+          else {
+            const listItem = document.createElement("li");
+            listItem.textContent = text;
+            ulfrag.appendChild(listItem);
+          }
+        });
+        divMainUL.appendChild(ulfrag);
+        fragment.appendChild(divMainUL)
+        this.$refs.textInput.innerHTML = "";
+        this.$refs.textInput.appendChild(fragment);
+      }
+    }
   },
   created() {
     setTimeout(this.typewriter, this.start);
   },
+  mounted: function () {
+    this.$nextTick(function () {
+      
+    })
+  }
 });
 </script>
 
 <template>
-  <div class="is-typed">
+  <div :class="{'cursor-progress': typeStatus}">
     <slot />
-    <span class="typed">{{ typeValue }}</span>
-    <span :class="caret + ' ' + { typing: typeStatus }">&nbsp;</span>
+    <span ref="textInput" class="whitespace-pre-line" :class="{'cursor-progress': typeStatus, 'cursor-text': !typeStatus}">{{ typeValue }}</span>
+    <span :class="{typing: typeStatus }">&nbsp;</span>
   </div>
 </template>

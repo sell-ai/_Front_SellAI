@@ -1,10 +1,10 @@
 import axios from 'axios';
-import Cookies from 'js-cookie'
+import { useAuthStore } from '@/store';
 
 export default class WService {
     getMethod(url) {
-        const keyT = Cookies.get('token');
-        const bearerAuth = 'Bearer ' + keyT;
+        const authStore = useAuthStore();
+        const bearerAuth = 'Bearer ' + authStore.token;
         var config = {
             method: 'get',
             url: url,
@@ -18,8 +18,8 @@ export default class WService {
     }
 
     postMethod(url, data, id) {
-        const keyT = btoa(Cookies.get('user') + ':' + Cookies.get('token'));
-        const basicAuth = 'Bearer ' + keyT;
+        const authStore = useAuthStore();
+        const basicAuth = 'Bearer ' + authStore.token;
         var config = {
             method: id !== '' ? 'put' : 'post',
             url: url,
@@ -36,8 +36,8 @@ export default class WService {
     }
 
     deleteMethod(url, id) {
-        const keyT = btoa(Cookies.get('user') + ':' + Cookies.get('token'));
-        const basicAuth = 'Bearer ' + keyT;
+        const authStore = useAuthStore();
+        const basicAuth = 'Bearer ' + authStore.token;
         var config = {
             method: 'delete',
             url: url + id,

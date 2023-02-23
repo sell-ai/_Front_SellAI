@@ -8,6 +8,7 @@
         alt="SELLAI"
         class="inline-flex items-center justify-center mr-2 text-white transition-all duration-200 ease-in-out w-28 h-9 text-sm rounded-circle"
       />
+      {{ settingStore.chat }}
       <div class="md:hidden">
         <Button icon="pi pi-bars" class="p-button-secondary p-button-text" @click="openSideBarMobile" />
       </div>
@@ -33,11 +34,7 @@
               <DisclosureButton
                 class="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-indigo-900 rounded-lg hover:bg-indigo-100 focus:outline-none focus-visible:ring focus-visible:ring-indigo-500 focus-visible:ring-opacity-75"
                 :class="{ 'bg-indigo-100': nav.isActive || open }">
-                <span aria-hidden="true">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="nav.d" />
-                  </svg>
-                </span>
+                <i :class="nav.icon" aria-hidden="true"></i>
                 <span class="ml-2 text-sm">{{ nav.label }}</span>
                 <ChevronUpIcon :class="open ? '' : 'transform rotate-180'" class="w-5 h-5 text-indigo-500" />
               </DisclosureButton>
@@ -62,7 +59,7 @@
       </PanelMenu>
     </Sidebar>
 
-    <main class="relative pr-9 pt-9 mt-12 h-screen-md overflow-x-hidden overflow-y-auto bg-sky-50">
+    <main :class="{'h-screen-md': settingStore.chat, 'pl-4': !settingStore.chat}" class="relative pr-9 pt-9 mt-12 w-full overflow-x-hidden overflow-y-auto bg-sky-50">
       <router-view/>
     </main>
 
@@ -86,6 +83,7 @@
 <script>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useSettingStore, useAuthStore } from '@/store'
 
 import Profiler from '@/components/extras/profiler';
 
@@ -107,7 +105,6 @@ import {
 
 import { ChevronUpIcon } from '@heroicons/vue/solid';
 import { MenuIcon, XIcon } from '@heroicons/vue/outline';
-import Cookies from 'js-cookie';
 import axios from 'axios';
 
 export default {
@@ -118,56 +115,21 @@ export default {
     XIcon, Profiler,
   },
   setup() {
-
-    onMounted(() => {     
-      let items = Cookies.get("menu");
-      items = JSON.parse(items);
-      navigation.value = items;
+    onMounted(() => {
+      navigation.value = JSON.parse(authStore.menu);
+      itemsMenu.value = settingStore.menuSetting;
     });
-
+    const settingStore = useSettingStore();
+    const authStore = useAuthStore();
     const logo = require('@/assets/logo.png');
-    const userDisplayName = ref(Cookies.get('user'));
+    const userDisplayName = ref(authStore.displayName);
     const open = ref(false);
     const overPanel = ref();
     const openMenuMobile = ref(false);
     const displayConfirmation = ref(false);
-    const navigation = ref([]);// traer desde las cookies.
+    const navigation = ref([]);// traer desde el store.
     const navMobileMenu = ref([]);
-    const itemsMenu = ref([
-    {
-      label: 'Opciones',
-      icon: 'pi pi-wrench',
-      items: [
-        {
-          label: 'Configurar',
-          icon: 'pi pi-book',
-          command: () => {
-          }
-        },
-      ]
-    },
-    {
-      label: 'Cuenta',
-      icon: 'pi pi-user-edit',
-      items: [
-        { 
-          label: 'Opciones', 
-          icon: 'pi pi-fw pi-cog',
-          to: '/home'
-        },
-        {
-          separator: true
-        },
-        {
-          label: 'Cerrar sesión', 
-          icon: 'pi pi-fw pi-power-off', 
-          command: () => {
-              logOut();
-          }
-        }
-      ]
-    }
-    ]);
+    const itemsMenu = ref([]);
 
     const router = useRouter();
 
@@ -194,14 +156,6 @@ export default {
       openMenuMobile.value = !openMenuMobile.value;
     }
 
-    const logOut = () => {
-      Cookies.remove('token');
-      Cookies.remove('menu');
-      Cookies.remove('deposit');
-      Cookies.remove('user');
-      router.push({ name: 'Login' });
-    }
-
     axios.interceptors.response.use(function (response) {
       return response;
     }, function (error) {
@@ -213,11 +167,11 @@ export default {
 
 
     return {
-      userDisplayName, overPanel, logo,
+      userDisplayName, overPanel, logo, settingStore,
       navigation, itemsMenu, open, openMenuMobile, 
       displayConfirmation, navMobileMenu,
 
-      openMenuUser, logOut, openSideBarMobile,
+      openMenuUser, openSideBarMobile,
     };
   },
 };

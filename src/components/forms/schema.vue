@@ -11,6 +11,12 @@
     <Textarea v-else-if="fieldObj.type === 'area'" :name="fieldObj.name" v-model="dataObj[fieldObj.name]" rows="5" cols="30" class="mt-1 w-full" />
     <InputMask v-else-if="fieldObj.type === 'mask'" :mask="fieldObj.mask" v-model="dataObj[fieldObj.name]" :placeholder="fieldObj.mask" class="mt-1 w-full" />
     <InputSwitch v-else-if="fieldObj.type === 'bool'" :name="fieldObj.name" v-model="dataObj[fieldObj.name]" class="block mt-1" />
+    <ListBoxEdit v-else-if="fieldObj.type === 'listedit'" :name="fieldObj.name" v-model="dataObj[fieldObj.name]" class="block mt-1" />
+    <div v-else-if="fieldObj.type === 'chips'" class="block mt-1">
+      <Chips :name="fieldObj.name" v-model="dataObj[fieldObj.name]" class="block mt-1 w-full"/>
+      <small class="text-gray-400">Presionar "Enter" para que tome el texto.</small>
+    </div>
+    
   </div>
 </template>
 
@@ -22,6 +28,9 @@
   import Textarea from 'primevue/textarea';
   import Calendar from 'primevue/calendar';
   import Dropdown from 'primevue/dropdown';
+  import Chips from 'primevue/chips';
+
+  import ListBoxEdit from '@/components/extras/listboxEdit.vue';
 
   import { ref } from 'vue';
   const props = defineProps({

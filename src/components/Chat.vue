@@ -19,6 +19,7 @@
         <div class="flex-grow ml-4">
           <div class="w-full">
             <input autofocus v-model.trim="txtMsg" v-on:keyup.enter="sendMessage" type="text" :disabled="loading"
+              maxlength="280"
               placeholder="Escribir un mensaje!" class="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"/>
           </div>
         </div>
@@ -58,7 +59,7 @@ export default {
     const divScroll = ref();
     const msgId = ref(0);
     const contextId = ref("");
-    const messages = ref([{id: -1, message: 'Hola...¿En que puedo ayudarte?', response: true}]);
+    const messages = ref([{id: -1, message: 'Hola...si necesitas ayuda escribe: "Ayuda"', response: true}]);
 
     const txtMsg = ref('');
 

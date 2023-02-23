@@ -1,16 +1,8 @@
 <template>
   <Toast />
-  <div v-if="loading">
-    <h5>Cargando...</h5>
-    <Skeleton class="mb-2"></Skeleton>
-    <Skeleton width="10rem" class="mb-2"></Skeleton>
-    <Skeleton width="5rem" class="mb-2"></Skeleton>
-    <Skeleton height="2rem" class="mb-2"></Skeleton>
-    <Skeleton width="10rem" height="4rem"></Skeleton>
-  </div>
-  <div v-else class="p-4 bg-white rounded-lg border border-gray-200 shadow-md">
-    <form class="w-full max-w-lg">
-      <div v-for="field in fields" :key="field.id" class="-mx-3 mb-6">
+  <div v-if="!loading" class="w-full p-4 bg-white rounded-lg border border-gray-200 shadow-md">
+    <form class="w-full grid grid-cols-2 gap-4">
+      <div v-for="field in fields" :key="field.id" class="-mx-3 mb-6" :class="field.class">
         <div class="w-full px-3">
           <div v-if="field.type !== 'object'" class="grid grid-cols-6 gap-4">
             <Schema :field="field" :data="data.info" />
@@ -27,30 +19,44 @@
           </div>
         </div>
       </div>
-      <div class="flex flex-wrap -mx-3 mb-2">
-        <div class="w-full px-3">
-          <button @click="Save" type="button" :disabled="loading"
-            class="inline-flex justify-center px-4 py-2 text-sm font-medium text-indigo-900 bg-indigo-100 border border-transparent rounded-md hover:bg-indigo-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500">
-            <svg v-show="loading" role="status" class="inline w-4 h-4 mr-3 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#E5E7EB"/>
-              <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentColor"/>
-            </svg>
-            <i class="pi pi-save" /> Grabar
-          </button>
-        </div>
+      <div class="col-span-2">
+        <Divider />
+      </div>
+      <div class="flex justify-center mb-2 col-span-2">
+        <Button label="Grabar" class="p-button-rounded p-button-lg" icon="pi pi-save" @click="Save" :loading="loading" />
       </div>
     </form>
   </div>
+
+  <div v-else>
+    <div class="flex justify-center ...">
+      <div>
+        <ProgressSpinner aria-label="Basic ProgressSpinner" />
+      </div>
+    </div>
+    <Skeleton class="mb-2" borderRadius="16px"></Skeleton>
+    <Skeleton height="4rem" class="mb-2" borderRadius="16px"></Skeleton>
+    <div class="flex">
+      <Skeleton width="20rem" class="mb-2" borderRadius="16px"></Skeleton>
+      <Skeleton width="5rem"></Skeleton>
+    </div>
+    <Skeleton width="5rem" class="mb-2"></Skeleton>
+  </div>
+
 </template>
 
 <script>
   import { ref, reactive, onMounted } from 'vue';
   import { object, string } from "yup";
+  import { useAlertStore } from '@/store'
   import moment from 'moment';
   
   import Toast from 'primevue/toast';
   import { useToast } from "primevue/usetoast";
+  import Divider from 'primevue/divider';
+  import ProgressSpinner from 'primevue/progressspinner';
   import Skeleton from 'primevue/skeleton';
+  import Button from 'primevue/button';
   import Schema from './schema.vue'
   
   export default {
@@ -63,7 +69,8 @@
     },
     emits: ['closeModal'],
     components: {
-      Toast, Skeleton, Schema
+      Toast, Skeleton, Schema, ProgressSpinner,
+      Button, Divider,
     },
     setup(props, { emit }) {
       onMounted(() => {
@@ -88,6 +95,7 @@
         initSchema();
         loading.value = false;
       })
+      const alertStore = useAlertStore();
       const toast = useToast();
       const newReg = ref(true); //si es editar o nuevo
       const wsProp = new props.WService();
@@ -127,6 +135,8 @@
           case "bool":
             result = true;
             break; 
+          case "listedit":
+          case "chips":
           case "select":
             result = [];
             break;
@@ -160,20 +170,19 @@
           const toSave = JSON.stringify(data.info);
           wsProp.postMethod(props.nameMethod, toSave, data.info.id).then((res) => {
             loading.value = false;
-            closeModal(res.value);
+            closeModal(res);
           }).catch(error => {
             loading.value = false;
-            if (error.response) {
-              console.log("Error Response", error.response.data);
-              for(const [value] of Object.entries(error.response.data.errors)){
-                console.log(error.response.data.errors[value][0]);
-              }
-            } else if (error.request) {
-              console.log("Error Request", error.request);
-              console.log("Error Message", error.request.message);
-            } else {
-              console.log(error.toJSON());
-            }
+            alertStore.clear();
+            alertStore.exception(error);
+            alertStore.alert.forEach(er => {
+              toast.add({
+                severity: er.type, 
+                summary: 'Ocurrio un inconveniente', 
+                detail: er.message, 
+                life: 5000
+              });
+            })
           });
         }).catch(err => {
           toast.add({severity:'warn', summary: 'Atención!', detail:'Verifique los campos para poder grabar', life: 3000});
@@ -193,7 +202,7 @@
       }
 
       return {
-        fields, loading, errors, data, 
+        fields, loading, errors, data, alertStore,
 
         validateSchema, validate, Save, closeModal,
       };
