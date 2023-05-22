@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-screen antialiased text-gray-900 bg-gray-100">
-    
+    <Toast />
     <!-- Header: Titulo. -->
     <header class="z-50 fixed flex items-center justify-between top-0 px-9 h-12 border-b w-screen bg-white overflow-y-auto">
       <img
@@ -8,7 +8,6 @@
         alt="SELLAI"
         class="inline-flex items-center justify-center mr-2 text-white transition-all duration-200 ease-in-out w-28 h-9 text-sm rounded-circle"
       />
-      {{ settingStore.chat }}
       <div class="md:hidden">
         <Button icon="pi pi-bars" class="p-button-secondary p-button-text" @click="openSideBarMobile" />
       </div>
@@ -81,12 +80,14 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useSettingStore, useAuthStore } from '@/store'
+import { useSettingStore, useAuthStore, useAlertStore } from '@/store'
 
 import Profiler from '@/components/extras/profiler';
 
+import Toast from 'primevue/toast';
+import { useToast } from "primevue/usetoast";
 import OverlayPanel from 'primevue/overlaypanel';
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
@@ -112,7 +113,7 @@ export default {
     Button, Menu, PanelMenu, Sidebar, Dialog, Tag, Chip,
     Disclosure, DisclosureButton, DisclosurePanel,
     OverlayPanel, Avatar, ChevronUpIcon, MenuIcon,
-    XIcon, Profiler,
+    XIcon, Profiler, Toast
   },
   setup() {
     onMounted(() => {
@@ -121,6 +122,8 @@ export default {
     });
     const settingStore = useSettingStore();
     const authStore = useAuthStore();
+    const alertStore = useAlertStore();
+    const toast = useToast();
     const logo = require('@/assets/logo.png');
     const userDisplayName = ref(authStore.displayName);
     const open = ref(false);
@@ -156,6 +159,10 @@ export default {
       openMenuMobile.value = !openMenuMobile.value;
     }
 
+    const logOut = () => {
+      authStore.logout();
+    }
+
     axios.interceptors.response.use(function (response) {
       return response;
     }, function (error) {
@@ -165,13 +172,29 @@ export default {
       return Promise.reject(error);
     });
 
+    watch(alertStore.alert, () => {
+      for (let i = 0; i < alertStore.alert.length; i++) {
+        const alertMsg = alertStore.alert[i];
+        let typeMsg = alertMsg.type;
+        switch (typeMsg) {
+          case 'warn':
+            typeMsg = "warning";
+            break;
+          case 'error':
+            typeMsg = "danger";
+            break;
+        }
+        toast.add({ severity: typeMsg, summary: 'SellAI', detail: alertMsg.message, life: 5000 })
+      }
+    });
+
 
     return {
       userDisplayName, overPanel, logo, settingStore,
       navigation, itemsMenu, open, openMenuMobile, 
-      displayConfirmation, navMobileMenu,
+      displayConfirmation, navMobileMenu, alertStore,
 
-      openMenuUser, openSideBarMobile,
+      openMenuUser, openSideBarMobile, logOut
     };
   },
 };

@@ -29,6 +29,8 @@ export const useAuthStore = defineStore('auth', {
       };
 
       axios(config).then(function (response) {
+        const alertStore = useAlertStore();
+        alertStore.clear();
         if (response.data !== undefined && response.data.signIn !== undefined
             && response.data.signIn.token !== null) {
           let resp = response.data.signIn;
@@ -48,8 +50,6 @@ export const useAuthStore = defineStore('auth', {
           settingStore.loading = settingStore.submitted = false;
         }
         else {
-          const alertStore = useAlertStore();
-          alertStore.clear();
           settingStore.loading = settingStore.submitted = false;
           alertStore.error('El Usuario o contraseña son incorrectos.')
         }

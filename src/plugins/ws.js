@@ -5,7 +5,7 @@ export default class WService {
     getMethod(url) {
         const authStore = useAuthStore();
         const bearerAuth = 'Bearer ' + authStore.token;
-        var config = {
+        let config = {
             method: 'get',
             url: url,
             headers: { 'Authorization': bearerAuth }
@@ -20,7 +20,7 @@ export default class WService {
     postMethod(url, data, id) {
         const authStore = useAuthStore();
         const basicAuth = 'Bearer ' + authStore.token;
-        var config = {
+        let config = {
             method: id !== '' ? 'put' : 'post',
             url: url,
             headers: { 
@@ -35,10 +35,30 @@ export default class WService {
         })
     }
 
+    async postData(url, file) {
+        const authStore = useAuthStore();
+        const basicAuth = 'Bearer ' + authStore.token;
+        const formData = new FormData();
+        formData.append('file', file, 'audio.mp3');
+        const config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: url,
+            headers: { 
+                'Authorization': basicAuth, 
+                'Content-Type': 'multipart/form-data'
+            },
+            data : formData
+        };
+          
+        const response = await axios(config);
+        return response.data;
+    }
+
     deleteMethod(url, id) {
         const authStore = useAuthStore();
         const basicAuth = 'Bearer ' + authStore.token;
-        var config = {
+        let config = {
             method: 'delete',
             url: url + id,
             headers: { 'Authorization': basicAuth }

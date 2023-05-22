@@ -52,6 +52,12 @@ export const useAlertStore = defineStore('alert', {
                     t.error(e);
                   });
                 }
+                else if (ex.response.status === 500 && ex.response.data) {
+                    const originalText = ex.response.data;
+                    const index = originalText.indexOf("\n");
+                    const extractedText = originalText.substring(0, index);
+                    t.warn(extractedText);
+                }
                 else if (ex.response.status === 500) {
                     t.warn("Error en el servidor!");
                 }

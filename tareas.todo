@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------------------
-|  Ctrl+Enter --> Nueva tarea.                                                           |
-|  Alt+d      --> Completar tarea.                                                       |
-|  Alt+c      --> Cancelar tarea.                                                        |
+|  Ctrl(⌘)+Enter --> Nueva tarea.                                                           |
+|  Alt(⌥)+d      --> Completar tarea.                                                       |
+|  Alt(⌥)+c      --> Cancelar tarea.                                                        |
 |  Tags: @critical @high @low @today                                                     |
 |                                                                                        |
 ------------------------------------------------------------------------------------------
@@ -13,3 +13,7 @@
 ✔ Agregar token para validar usuario. @high @done (17/4/2022 21:21:08)
 ✔ Agregar demás parámetros de artículos. @today @done (17/4/2022 21:20:59)
 ☐ Agregar en ventas que pueda buscar en varios depositos.
+☐ Realizar control de stock desde backend.
+☐ Que se pueda enviar sonidos al interprete. @high 
+☐ Agregar limitación de tiempo en grabación de audio. @low 
+☐ Agregar que se vea información en PDF. @critical 

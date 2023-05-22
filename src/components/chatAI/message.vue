@@ -4,15 +4,18 @@
       <div :class="classObject" class="flex flex-col space-y-2 text-xs max-w-5xl mx-2">
         <div v-if="response" alert class="relative w-full p-4 mb-4 text-xl text-white border border-solid rounded-lg bg-gradient-to-tl from-blue-700 to-cyan-500 border-cyan-200">
           <VueWriter :array="[message]" :iterations='1' :typeSpeed="30" @finish="finishWrite"/>
+          <DataTable v-if="type==='table'" :value="table.rows" tableStyle="min-width: 50rem" showGridlines>
+              <Column v-for="col of table.columns" :key="col.field" :field="col.field" :header="col.header"></Column>
+          </DataTable>
         </div>
-        <div v-else alert class="relative w-full p-4 mb-4 text-xl text-white border border-solid rounded-lg bg-gradient-to-tl from-emerald-500 to-teal-400 border-emerald-300" v-html="message"></div>
+        <RequestMsg v-else :msgRequest="message" :typeRequest="type" :blobRequest="blobObject" :urlRequest="url"></RequestMsg>
       </div>
       <div>
         <div v-if="response">
           <img :src="imgBot" alt="BOT" class="inline-flex items-center justify-center w-8 h-8 mr-2 text-white transition-all duration-200 ease-in-out text-sm rounded-xl order-1"/>
         </div>
         <div v-else>
-          <img v-if="url!==''" :src="url" alt="BOT" class="inline-flex items-center justify-center w-8 h-8 mr-2 text-white transition-all duration-200 ease-in-out text-sm rounded-xl order-2"/>
+          <img v-if="urlAvatar!==''" :src="urlAvatar" alt="BOT" class="inline-flex items-center justify-center w-8 h-8 mr-2 text-white transition-all duration-200 ease-in-out text-sm rounded-xl order-2"/>
           <Avatar v-else icon="pi pi-user" class="mr-2 order-2" style="background-color:#2196F3; color: #ffffff" shape="circle"/>
         </div>
       </div>
@@ -23,13 +26,40 @@
 <script>
 import { reactive } from 'vue'
 import VueWriter from "./vue-writer";
+import RequestMsg from './request.vue';
 import Avatar from 'primevue/avatar';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
 
 export default{
   props: {
     message: String,
     response: Boolean,
+    type: {
+      type: String,
+      default: ''
+    },
+    table: {
+      type: Object,
+      default() {
+        return { 
+          rows: [],
+          columns: [{
+            field: 'empty',
+            header: 'Empty'
+          }] 
+        }
+      }
+    },
+    blobObject: {
+      type: Blob,
+      default: null
+    },
     url: {
+      type: String,
+      default: ''
+    },
+    urlAvatar: {
       type: String,
       default: ''
     }
@@ -38,10 +68,10 @@ export default{
     'onfinish'
   ],
   components: {
-    VueWriter, Avatar,
+    VueWriter, RequestMsg, Avatar, DataTable, Column
   },
   setup(props, { emit }){
-    
+    console.log("Type of object: ", props.type);
     const imgBot = require('@/assets/ai48.png');
     const resp = props.response;
     const classObject = reactive({

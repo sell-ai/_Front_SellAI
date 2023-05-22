@@ -2,9 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore, useSettingStore } from '@/store';
 
 //Call routes
-import dashboardRoutes from './dashboard.routes';
-import articlesRoutes from './articles.routes';
-import usersRoutes from './users.routes';
+import dashboardRoutes  from './dashboard.routes';
+import articlesRoutes   from './articles.routes';
+import adminRoutes      from './admin.routes';
+import usersRoutes      from './users.routes';
 //End call routes
 
 const router = createRouter({
@@ -12,6 +13,7 @@ const router = createRouter({
   routes: [
     { ...dashboardRoutes },
     { ...articlesRoutes },
+    { ...adminRoutes },
     { ...usersRoutes },
     // catch all redirect to home page
     { path: '/:pathMatch(.*)*', redirect: '/' }
